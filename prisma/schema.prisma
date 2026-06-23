@@ -1,0 +1,28 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Movie {
+  id          Int         @id @default(autoincrement())
+  title       String
+  genre       String
+  rating      String
+  description String
+  posterUrl   String
+  trailerUrl  String
+  status      MovieStatus
+  director    String?
+  producer    String?
+  cast        String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+enum MovieStatus {
+  CURRENTLY_RUNNING
+  COMING_SOON
+}
