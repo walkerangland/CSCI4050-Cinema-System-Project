@@ -14,6 +14,7 @@ export default function RootLayout({ children }) {
         <h1 style={{fontSize: '20px'}}>Movie app</h1>
           <Link href="/" className={styles.topbar}>Home</Link>
           <Link href="/search" className={styles.topbar}>Search</Link>
+          <Link href="/book" className={styles.topbar}>Book</Link>
         <main>{children}</main>
         </nav>
       </body>

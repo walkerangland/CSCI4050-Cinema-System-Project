@@ -13,14 +13,6 @@ export default function Page() {
   );
   
 }
-function Profile() {
-  return (
-    <img
-      src="https://react.dev/images/docs/scientists/MK3eW3Am.jpg"
-      alt="Katherine Johnson"
-    />
-  )
-} 
 
 //Gets (random?) movies, (todo: add parameter that changes whether movies are now playing or coming soon)
 function GetMovies() {
