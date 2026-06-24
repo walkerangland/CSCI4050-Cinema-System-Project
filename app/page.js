@@ -1,22 +1,27 @@
-import Link from 'next/link'
 import Image from 'next/image'
+import { GetMovie as fetchMovie } from '../lib/movies'
  
-
 export default function Page() {
   return (<div>
             <h1>Welcome to [movie app]!</h1>
             <h2>Currently Playing Movies:</h2>
-            <GetMovies/>
+            <GetMovies type="now-playing" />
             <h2>Coming Soon Movies:</h2>
-            <GetMovies/>
+            <GetMovies type="coming-soon" />
           </div>
   );
   
 }
 
 //Gets (random?) movies, (todo: add parameter that changes whether movies are now playing or coming soon)
-function GetMovies() {
-  const movies = [GetMovie(), GetMovie(), GetMovie(), GetMovie(), GetMovie()] 
+function GetMovies({ type }) {
+  const movies = [
+    fetchMovie(type, 0),
+    fetchMovie(type, 1),
+    fetchMovie(type, 2),
+    fetchMovie(type, 3),
+    fetchMovie(type, 4),
+  ]
   return (   
     <div style = {{display: "flex", flexDirection: "row", gap: 16, overflowX: "auto"}}>
       {movies.map((movie) => (
@@ -39,29 +44,4 @@ function GetMovies() {
 
 function ComingSoonMovies() {
 
-}
-
-//Placeholder for getmovie 
-function GetMovie() {
-  return (
-    new Movie
-    )
-}
-//Movie class placeholder.
-class Movie {
-  constructor(id, title, genre, rating, description, posterUrl, trailerUrl, status, director, producer, cast, createdAt, updatedAt) {
-    this.id = 'd'
-    this.title = 'd'
-    this.genre ='d'
-    this.rating = 'd'
-    this.description = 'd'
-    this.posterUrl = '/minecraftMovie.webp'
-    this.trailerUrl = 'd'
-    this.status = 'd'
-    this.director = 'd'
-    this.producer = 'd'
-    this.cast = 'd'
-    this.createdAt = 'd'
-    this.updatedAt = 'd'
-  }
 }
