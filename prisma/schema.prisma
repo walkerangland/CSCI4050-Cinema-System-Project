@@ -12,6 +12,7 @@ model Movie {
   genre       String
   rating      String
   description String
+  reviews     String?
   posterUrl   String
   trailerUrl  String
   status      MovieStatus
