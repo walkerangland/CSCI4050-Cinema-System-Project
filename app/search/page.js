@@ -82,11 +82,13 @@ export default function SearchPage() {
                 }}
               >
                 {/* Poster */}
-                <img
-                  src={movie.posterUrl}
-                  alt={movie.title}
-                  style={{ width: '80px', height: '110px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0 }}
-                />
+                <Link href = {`details/${movie.status}/${movie.id}`}>
+                  <img
+                    src={movie.posterUrl}
+                    alt={movie.title}
+                    style={{ width: '80px', height: '110px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0 }}
+                  />
+                </Link>
 
                 {/* Info */}
                 <div style={{ flex: 1 }}>
