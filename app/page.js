@@ -30,7 +30,7 @@ function GetMovies({ type }) {
             <h2 style={{fontSize: '1.1rem', fontWeight: 'bold', margin: 3 }}>{movie.title}</h2>
             <span style={{ fontSize: '0.75rem', padding: '0.1rem 0.5rem', backgroundColor: '#f3f4f6', borderRadius: '999px', color: '#6b7280'}}>{movie.rating}</span>
             <div style={{width: '180px'}}> 
-              <Link href = "/book">
+              <Link href = {`details/${movie.status}/${movie.id}`}>
                 <Image
                   src={movie.posterUrl}
                   alt= {movie.posterUrl}
@@ -40,7 +40,6 @@ function GetMovies({ type }) {
                   style={{ width: '100%', height: 'auto', borderRadius:'12px'}}
                 />
               </Link>
-              
             </div>
           </div>
         </div>
