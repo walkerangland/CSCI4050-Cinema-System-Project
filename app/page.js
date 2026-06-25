@@ -4,7 +4,7 @@ import { GetMovie as fetchMovie } from '../lib/movies'
  
 export default function Page() {
   return (<div style = {{textAlign:'center'}}>
-            <h1>Welcome to [movie app]!</h1>
+            <h1>Welcome to the cinema E-booking system!</h1>
             <h2>Currently Playing Movies:</h2>
             <GetMovies type="now-playing" />
             <h2>Coming Soon Movies:</h2>
