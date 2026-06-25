@@ -3,11 +3,11 @@ import Link from 'next/link'
 import { GetMovie as fetchMovie } from '../lib/movies'
  
 export default function Page() {
-  return (<div style = {{textAlign:'center'}}>
-            <h1>Welcome to the cinema E-booking system!</h1>
-            <h2>Currently Playing Movies:</h2>
+  return (<div style = {{textAlign:'center', backgroundColor: '#0d0d0d', color: '#ffffff', minHeight: '100vh', padding: '2rem'}}>
+            <h1>Welcome to the Cinema E-booking System!</h1>
+            <h2>Currently Playing:</h2>
             <GetMovies type="now-playing" />
-            <h2>Coming Soon Movies:</h2>
+            <h2>Coming Soon:</h2>
             <GetMovies type="coming-soon" />
           </div>
   );  
@@ -26,9 +26,9 @@ function GetMovies({ type }) {
     <div style = {{display: "flex", flexDirection: "row", gap: '4rem', overflowX: "auto", justifyContent: "center"}}>
       {movies.map((movie) => (
         <div key = {movie.id ?? movie.posterUrl} >
-          <div style={{border: '4px solid #e5e7eb', borderRadius: '12px',  backgroundColor: 'white'}}> 
+          <div style={{border: '4px solid #5a0000', borderRadius: '12px',  backgroundColor: '#1c1c1c'}}>
             <h2 style={{fontSize: '1.1rem', fontWeight: 'bold', margin: 3 }}>{movie.title}</h2>
-            <span style={{ fontSize: '0.75rem', padding: '0.1rem 0.5rem', backgroundColor: '#f3f4f6', borderRadius: '999px', color: '#6b7280'}}>{movie.rating}</span>
+            <span style={{ fontSize: '0.75rem', padding: '0.1rem 0.5rem', backgroundColor: '#1a0000', borderRadius: '999px', color: '#f5c518'}}>{movie.rating}</span>
             <div style={{width: '180px'}}> 
               <Link href = {`details/${movie.status}/${movie.id}`}>
                 <Image

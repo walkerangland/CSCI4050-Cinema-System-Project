@@ -8,7 +8,7 @@ const newsreader = Newsreader({
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className = {newsreader.className} style={{ backgroundColor: '#a17ba7'}}>
+    <html lang="en" className = {newsreader.className} style={{ backgroundColor: '#0d0d0d'}}>
       <body>
         <nav>
         <h1 style={{fontSize: '20px', textDecoration:'underline'}}>CES</h1>

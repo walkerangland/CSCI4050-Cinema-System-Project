@@ -1,7 +1,8 @@
 
 .topbar {
     padding: 8px;
-    border: 2px groove black;
-    background-color: rgb(222, 253, 253);
+    border: 2px groove #f5c518;
+    background-color: #1a0000;
+    color: #f5c518;
 }
 
