@@ -6,9 +6,12 @@ export default async function Page({ params }) {
     const { details } = await params
 
     const movie = GetMovieByID(details[1])
+
+    const embedUrl = movie.trailerUrl?.replace("watch?v=", "embed/");
+
     return (
         <div style={{color: '#ffffff'}}>
-            <div style={{border: '4px solid #5a0000', borderRadius: '12px',  backgroundColor: '#1c1c1c', marginTop:20, width:'700px'}}> 
+            <div style={{border: '4px solid #5a0000', borderRadius: '12px',  backgroundColor: '#1c1c1c', marginTop:20, width:'100%'}}> 
                 <div style={{width: '100vw'}}>
                     <div style={{display:'flex',margin: '1rem'}}>
                         <h2 style={{fontSize: '1.1rem', fontWeight: 'bold', margin: '2px'}}>{movie.title}</h2>
@@ -23,17 +26,18 @@ export default async function Page({ params }) {
                 <div style={{display:'flex'}}>
                     <Image
                     src={movie.posterUrl}
-                    alt= {movie.posterUrl}
+                    alt={movie.posterUrl}
                     width={180}
                     height={0}
                     style={{ width: '180px', height: 'auto', borderRadius:'12px'}}
                     />
                     <p style={{ padding:'0.5rem', width:'200px', fontSize: '0.875rem', color: '#6b7280', margin: '0 0 0.5rem 0', paddingTop:'0.75rem' }}>{movie.description}</p>
                     <iframe
-                        src={movie.trailerUrl}
+                        src={embedUrl}
                         frameBorder="0"
-                        title="Product Overview Video"
-                        aria-hidden="true"
+                        title={`${movie.title} Trailer`}
+                        style={{ width: '100%', height: 'auto', borderRadius: '12px' }}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     />
                 </div>
                 {movie.status === 'now-playing' && (
