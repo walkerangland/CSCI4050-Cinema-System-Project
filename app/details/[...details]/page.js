@@ -36,7 +36,7 @@ export default async function Page({ params }) {
                         src={embedUrl}
                         frameBorder="0"
                         title={`${movie.title} Trailer`}
-                        style={{ width: '100%', height: 'auto', borderRadius: '12px' }}
+                        style={{ width: '800px', height: 'auto', borderRadius: '12px' }}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     />
                 </div>
