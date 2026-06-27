@@ -7,7 +7,7 @@ export default async function Page({ params }) {
 
     const movie = GetMovieByID(details[1])
 
-    const embedUrl = movie.trailerUrl?.replace("watch?v=", "embed/");
+    const embedUrl = movie.trailerUrl?.replace("watch?v=", "embed/");   //replaces "watch?v=" with "embed/" to allow for imbedded trailer playing from youtube links
 
     return (
         <div style={{color: '#ffffff'}}>
@@ -36,7 +36,7 @@ export default async function Page({ params }) {
                         src={embedUrl}
                         frameBorder="0"
                         title={`${movie.title} Trailer`}
-                        style={{ width: '800px', height: 'auto', borderRadius: '12px' }}
+                        style={{ width: '30%', height: 'auto', borderRadius: '12px' }}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     />
                 </div>
