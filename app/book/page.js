@@ -1,49 +1,61 @@
 'use client'
+import { Suspense, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { useState } from 'react'
 
 const TICKET_TYPES = [
-{ type: 'Adult', price: 12.00 },
-{ type: 'Child', price: 8.00},
-{ type: 'Senior', price: 10.00}
+  { type: 'Adult', price: 12.0 },
+  { type: 'Child', price: 8.0 },
+  { type: 'Senior', price: 10.0 },
 ]
 
 const ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
 const COLS = 8
-const TAKEN_SEATS = ['A1','A2','B4','C7','D3','E5','F1','G8','H2','H3']
+const TAKEN_SEATS = ['A1', 'A2', 'B4', 'C7', 'D3', 'E5', 'F1', 'G8', 'H2', 'H3']
 
-export default function BookingPage() {
-const params = useSearchParams()
-const movie = params.get('movie') || 'Unknown Movie'
-const time = params.get('time') || 'Unknown Time'
+function BookingPageContent() {
+  const params = useSearchParams()
+  const movie = params.get('movie') || 'Unknown Movie'
+  const time = params.get('time') || 'Unknown Time'
 
-const [quantities, setQuantities] = useState({ Adult: 0, Child: 0, Senior: 0 })
-const [selectedSeats, setSelectedSeats] = useState([])
+  const [quantities, setQuantities] = useState({ Adult: 0, Child: 0, Senior: 0 })
+  const [selectedSeats, setSelectedSeats] = useState([])
 
-const updateQty = (type, delta) => {
-    setQuantities(prev => ({
-    ...prev,
-    [type]: Math.max(0, prev[type] + delta)
+  const updateQty = (type, delta) => {
+    setQuantities((prev) => ({
+      ...prev,
+      [type]: Math.max(0, prev[type] + delta),
     }))
-}
+  }
 
-const toggleSeat = (seat) => {
-  if (TAKEN_SEATS.includes(seat)) return
-  setSelectedSeats(prev =>
-  prev.includes(seat) ? prev.filter(s => s !== seat) : [...prev, seat]
+  const toggleSeat = (seat) => {
+    if (TAKEN_SEATS.includes(seat)) return
+    setSelectedSeats((prev) =>
+      prev.includes(seat) ? prev.filter((s) => s !== seat) : [...prev, seat]
+    )
+  }
+
+  const total = TICKET_TYPES.reduce(
+    (sum, t) => sum + t.price * quantities[t.type],
+    0
   )
-}
 
-const total = TICKET_TYPES.reduce((sum, t) => sum + t.price * quantities[t.type],0)
+  const getSeatColor = (seat) => {
+    if (TAKEN_SEATS.includes(seat)) return '#ef4444'
+    if (selectedSeats.includes(seat)) return '#22c55e'
+    return '#d1d5db'
+  }
 
-const getSeatColor = (seat) => {
-if (TAKEN_SEATS.includes(seat)) return '#ef4444'     // red = taken
-if (selectedSeats.includes(seat))  return '#22c55e' // green = selected
-return '#d1d5db'                                    // gray = available
-}
-
-return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem', fontFamily: 'sans-serif', backgroundColor: '#0d0d0d', color: '#ffffff'}}>
+  return (
+    <div
+      style={{
+        maxWidth: '800px',
+        margin: '0 auto',
+        padding: '2rem',
+        fontFamily: 'sans-serif',
+        backgroundColor: '#0d0d0d',
+        color: '#ffffff',
+      }}
+    >
 
       {/* Header */}
        <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>{movie}</h1>
@@ -109,5 +121,19 @@ return (
       )}
 
     </div>
-)
+  )
+}
+
+export default function Page() {
+  return (
+    <Suspense
+      fallback={
+        <div style={{ padding: '2rem', color: '#ffffff' }}>
+          Loading booking details...
+        </div>
+      }
+    >
+      <BookingPageContent />
+    </Suspense>
+  )
 }

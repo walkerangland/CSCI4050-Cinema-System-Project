@@ -84,7 +84,7 @@ export default function SearchPage() {
                 }}
               >
                 {/* Poster */}
-                <Link href = {`details/${movie.status}/${movie.id}`}>
+                <Link href={`/details/${movie.status}/${movie.id}`}>
                   <img
                     src={movie.posterUrl}
                     alt={movie.title}
