@@ -1,16 +1,23 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import styles from './home.module.css'
 import { GetMovie as fetchMovie } from '../lib/movies'
  
 export default function Page() {
-  return (<div style = {{textAlign:'center', backgroundColor: '#0d0d0d', color: '#ffffff', minHeight: '100vh', padding: '2rem'}}>
-            <h1>Welcome to the Cinema E-booking System!</h1>
-            <h2>Currently Playing:</h2>
-            <GetMovies type="now-playing" />
-            <h2>Coming Soon:</h2>
-            <GetMovies type="coming-soon" />
-          </div>
-  );  
+  return (
+    <div className={styles.container}>
+      <div className={styles.hero}>
+        <h1 className={styles.heroTitle}>Welcome to Movie Portal</h1>
+        <p className={styles.heroSubtitle}>Discover Now Playing and Coming Soon movies.</p>
+      </div>
+
+      <h2 className={styles.sectionTitle}>Now Playing</h2>
+      <GetMovies type="now-playing" />
+
+      <h2 className={styles.sectionTitle}>Coming Soon</h2>
+      <GetMovies type="coming-soon" />
+    </div>
+  );
 }
 
 //Gets the first 5 movies listed in the database of param type and displays them
@@ -22,26 +29,33 @@ function GetMovies({ type }) {
     fetchMovie(type, 3),
     fetchMovie(type, 4),
   ]
-  return (   
-    <div style = {{display: "flex", flexDirection: "row", gap: '4rem', overflowX: "auto", justifyContent: "center"}}>
+  return (
+    <div className={styles.cards}>
       {movies.map((movie) => (
-        <div key = {movie.id ?? movie.posterUrl} >
-          <div style={{border: '4px solid #5a0000', borderRadius: '12px',  backgroundColor: '#1c1c1c'}}>
-            <h2 style={{fontSize: '1.1rem', fontWeight: 'bold', margin: 3 }}>{movie.title}</h2>
-            <span style={{ fontSize: '0.75rem', padding: '0.1rem 0.5rem', backgroundColor: '#1a0000', borderRadius: '999px', color: '#f5c518'}}>{movie.rating}</span>
-            <div style={{width: '180px'}}> 
-              <Link href = {`details/${movie.status}/${movie.id}`}>
-                <Image
-                  src={movie.posterUrl}
-                  alt= {movie.posterUrl}
-                  width={0}
-                  height={0}
-                  sizes="100vw"
-                  style={{ width: '100%', height: 'auto', borderRadius:'12px'}}
-                />
-              </Link>
-            </div>
+        <div key={movie.id ?? movie.posterUrl} className={styles.card}>
+          <h3 className={styles.cardTitle}>{movie.title}</h3>
+          <span className={styles.ratingPill}>{movie.rating}</span>
+
+          <div style={{ width: '100%', marginTop: '0.5rem' }}>
+            <Link href={`details/${movie.status}/${movie.id}`}>
+              <Image
+                src={movie.posterUrl}
+                alt={movie.title + ' poster'}
+                width={220}
+                height={330}
+                sizes="(max-width: 600px) 180px, 220px"
+                className={styles.poster}
+              />
+            </Link>
           </div>
+
+          <div className={styles.gallery}>
+            <img src={movie.posterUrl} alt={`${movie.title} photo`} className={styles.thumbnail} />
+          </div>
+
+          <Link className={styles.bookBtn} href={`details/${movie.status}/${movie.id}`}>
+            Book Now
+          </Link>
         </div>
       ))}
     </div>
