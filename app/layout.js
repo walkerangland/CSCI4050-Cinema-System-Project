@@ -8,25 +8,23 @@ const newsreader = Newsreader({
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className = {newsreader.className} style={{ backgroundColor: '#a17ba7'}}>
-      <body>
-        <nav>
-        <h1 style={{fontSize: '20px'}}>Movie app</h1>
-          <Link href="/" className={styles.topbar}>Home</Link>
-          <Link href="/search" className={styles.topbar}>Search</Link>
-          <Link href="/book" className={styles.topbar}>Book</Link>
-        <main>{children}</main>
-        </nav>
+    <html lang="en" className={newsreader.className}>
+      <body className={styles.appRoot}>
+        <header className={styles.header}>
+          <div className={styles.brand}>
+            <div className={styles.logo}>Movie Portal</div>
+          </div>
+          <nav className={styles.nav}>
+            <Link href="/" className={styles.navLink}>Home</Link>
+            <Link href="/search" className={styles.navLink}>Search</Link>
+            <Link href="/book" className={styles.navLink}>Book</Link>
+          </nav>
+          <div className={styles.profile}>​</div>
+        </header>
+
+        <main className={styles.container}>{children}</main>
+
       </body>
     </html>
   )
 }
-
-function TopBar() {
-  return(
-    <div>
-      something
-    </div>
-  )
-}
-

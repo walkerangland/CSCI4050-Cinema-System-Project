@@ -43,19 +43,19 @@ return '#d1d5db'                                    // gray = available
 }
 
 return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem', fontFamily: 'sans-serif' }}>
+    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem', fontFamily: 'sans-serif', backgroundColor: '#0d0d0d', color: '#ffffff'}}>
 
       {/* Header */}
-      <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>{movie}</h1>
-      <p style={{ color: '#6b7280', marginBottom: '2rem' }}>Showtime: {time}</p>
+       <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>{movie}</h1>
+       <p style={{ color: '#aaaaaa', marginBottom: '2rem' }}>Showtime: {time}</p>
 
       {/* Ticket Selector */}
       <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem' }}>Select Tickets</h2>
       <div style={{ marginBottom: '2rem' }}>
         {TICKET_TYPES.map(({ type, price }) => (
-          <div key={type} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', border: '1px solid #e5e7eb', borderRadius: '8px', marginBottom: '0.5rem' }}>
+          <div key={type} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', border: '1px solid #5a0000', borderRadius: '8px', marginBottom: '0.5rem' }}>
             <span style={{ fontWeight: '500' }}>{type}</span>
-            <span style={{ color: '#6b7280' }}>${price.toFixed(2)}</span>
+            <span style={{ color: '#aaaaaa' }}>${price.toFixed(2)}</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <button onClick={() => updateQty(type, -1)} style={{ width: '2rem', height: '2rem', borderRadius: '50%', border: '1px solid #d1d5db', cursor: 'pointer', fontSize: '1rem' }}>−</button>
               <span style={{ minWidth: '1rem', textAlign: 'center' }}>{quantities[type]}</span>
@@ -80,7 +80,7 @@ return (
       </div>
 
       {/* Screen */}
-      <div style={{ textAlign: 'center', background: '#e5e7eb', padding: '0.4rem', borderRadius: '4px', marginBottom: '1.5rem', color: '#6b7280', fontSize: '0.875rem' }}>SCREEN</div>
+      <div style={{ textAlign: 'center', background: '#f5c518', padding: '0.4rem', borderRadius: '4px', marginBottom: '1.5rem', color: '#6b7280', fontSize: '0.875rem' }}>SCREEN</div>
 
       {/* Seat Grid */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '2rem' }}>
@@ -105,7 +105,7 @@ return (
 
       {/* Selected Seats Summary */}
       {selectedSeats.length > 0 && (
-        <p style={{ color: '#6b7280' }}>Selected seats: <strong>{selectedSeats.join(', ')}</strong></p>
+        <p style={{ color: '#aaaaaa' }}>Selected seats: <strong>{selectedSeats.join(', ')}</strong></p>
       )}
 
     </div>
