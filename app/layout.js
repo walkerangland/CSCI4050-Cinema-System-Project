@@ -36,7 +36,7 @@ export default function RootLayout({ children }) {
             </button>
             <Link href="/register" className={styles.navLink}>Register</Link>
           </nav>
-          <div className={styles.profile}></div>
+            <Link href = "/profile" className={styles.profile}></Link>
         </header>
         <main className={styles.container}>{children}</main>
       </body>
