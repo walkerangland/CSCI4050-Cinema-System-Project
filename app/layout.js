@@ -34,6 +34,7 @@ export default function RootLayout({ children }) {
             >
               Logout
             </button>
+            <Link href="/register" className={styles.navLink}>Register</Link>
           </nav>
           <div className={styles.profile}></div>
         </header>

@@ -175,3 +175,12 @@
         color: #f5c518;
 }
 
+.registerDesc {
+        color: #c2c2c2;
+        font-size: medium;
+}
+
+.registerDiv {
+        padding: 0.5rem
+}
+
