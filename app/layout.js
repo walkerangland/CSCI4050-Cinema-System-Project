@@ -9,7 +9,7 @@ const newsreader = Newsreader({
 })
 
 export default function RootLayout({ children }) {
-  const router = useRouter()
+const router = useRouter()
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' })
@@ -28,16 +28,13 @@ export default function RootLayout({ children }) {
             <Link href="/search" className={styles.navLink}>Search</Link>
             <Link href="/book" className={styles.navLink}>Book</Link>
             <Link href="/login" className={styles.navLink}>Login</Link>
-            <button
-              onClick={handleLogout}
-              style={{ background: 'none', border: '1px solid #c0392b', color: '#f5c518', padding: '0.25rem 0.75rem', borderRadius: '6px', cursor: 'pointer', fontFamily: 'inherit', fontSize: '1rem' }}
-            >
-              Logout
-            </button>
+            <button onClick={handleLogout} style={{ background: 'none', border: '1px solid #c0392b', color: '#f5c518', padding: '0.25rem 0.75rem', borderRadius: '6px', cursor: 'pointer', fontFamily: 'inherit', fontSize: '1rem' }}>Logout</button>
           </nav>
-          <div className={styles.profile}></div>
+          <div className={styles.profile}>​</div>
         </header>
+
         <main className={styles.container}>{children}</main>
+
       </body>
     </html>
   )
