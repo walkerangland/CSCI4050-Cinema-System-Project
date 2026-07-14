@@ -57,6 +57,18 @@ return (
           </div>
         </details>
       </div>
+      <div className={styles.registerDiv} style={{ textAlign: 'left', display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', margin: '1rem 0' }}>
+        <input 
+          type="checkbox" 
+          id="promotions" 
+          name="promotions" 
+          defaultChecked={true} // Automatically checked as a nice default
+          style={{ cursor: 'pointer' }}
+        />
+        <label htmlFor="promotions" style={{ color: '#aaaaaa', fontSize: '0.9rem', cursor: 'pointer' }}>
+          Opt-in to receive promotions and discount codes
+        </label>
+      </div>
       <div className={styles.registerDiv}>
         <input type="submit" placeholder='Submit Registration'></input>
         

@@ -14,9 +14,9 @@ setError('')
 setLoading(true)
 
 const res = await fetch ('/api/auth/forgot-password', {
-method: 'POST'
+method: 'POST',
 headers: { 'Content-Type': 'application/json' },
-body: JSON.straightfy({ email }),
+body: JSON.stringify({ email }),
 
 })
 
