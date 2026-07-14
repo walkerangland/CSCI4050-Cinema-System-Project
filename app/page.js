@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import styles from './home.module.css'
 import { GetMovie as fetchMovie } from '../lib/movies'
+import FavoriteButton from './favoriteButton'
  
 export default function Page() {
   return (
@@ -33,7 +34,10 @@ function GetMovies({ type }) {
     <div className={styles.cards}>
       {movies.map((movie) => (
         <div key={movie.id ?? movie.posterUrl} className={styles.card}>
-          <h3 className={styles.cardTitle}>{movie.title}</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <h3 className={styles.cardTitle}>{movie.title}</h3>
+            <FavoriteButton movieId={movie.id} />
+          </div>
           <span className={styles.ratingPill}>{movie.rating}</span>
 
           <div style={{ width: '100%', marginTop: '0.5rem' }}>

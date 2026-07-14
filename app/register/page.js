@@ -174,7 +174,7 @@ export default function RegisterPage() {
           disabled={loading}
           style={{ width: '100%', padding: '0.75rem', backgroundColor: '#c0392b', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold', cursor: loading ? 'not-allowed' : 'pointer' }}
         >
-          {loading ? 'Submitting...' : 'Submit Registration'}
+          {loading ? 'Submitting...' : 'Submit'}
         </button>
 
       </form>
