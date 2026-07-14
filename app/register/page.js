@@ -9,8 +9,8 @@ return (
       <h1 className={styles.heroTitle}>Register</h1>
       <InputField type = 'text' placeholder='First Name' required ={true}/>
       <InputField type = 'text' placeholder='Last Name' required ={true}/>
-      <InputField type = 'text' placeholder='Email Address' required ={true}/>
-      <InputField type = 'text' placeholder='Phone Number' required ={true}/>
+      <InputField type = 'email' placeholder='Email Address' required ={true}/>
+      <InputField type = 'tel' placeholder='Phone Number' required ={true}/>
       <InputField type = 'password' placeholder='Password' required ={true}/>
       <InputField type = 'password' placeholder='Confirm Password' required ={true}/>
       <div className={styles.registerDiv}>
