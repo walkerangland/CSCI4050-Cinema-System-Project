@@ -19,7 +19,8 @@ export async function POST(req) {
     city,
     state,
     aptNumber,
-    creditCards
+    creditCards,
+    promotions
   } = await req.json()
 
   // Validation
@@ -60,6 +61,7 @@ export async function POST(req) {
         city,
         state,
         aptNumber,
+        promotions: promotions || false,
         status: 'INACTIVE', // Not verified yet
         role: 'CUSTOMER',
         verificationToken,
