@@ -78,28 +78,35 @@ return (
           </div>
         </div>
       </div>
+      {/*Credit Cards section*/}
       <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', marginTop:'1.5rem', textAlign: 'center' }}>Credit Cards</h1>
       <div style={{ fontFamily: 'sans-serif', fontSize: '1rem',maxWidth: '750px',  margin: '0 auto', padding:'0.5rem', backgroundColor: '#232323', borderRadius: '12px', border: '1px solid #5a0000', color: '#ffffff' }}>
         <div style={{padding: '0.5rem'}}>
         <details>
-          <summary>Card 1</summary>
+            <summary style={{ cursor: 'pointer', fontWeight: 'bold'}}> Card 1</summary>
           <CardElement/>
           </details>
         </div>
         <div style={{padding: '0.5rem'}}>
         <details>
-          <summary>Card 2</summary>
+          <summary style={{ cursor: 'pointer', fontWeight: 'bold'}}>Card 2</summary>
           <CardElement/>
           </details>
         </div>
         <div style={{padding: '0.5rem'}}>
         <details>
-          <summary>Card 3</summary>
+          <summary style={{ cursor: 'pointer', fontWeight: 'bold'}}>Card 3</summary>
           <CardElement/>
           </details>
         </div>
-        
       </div>  
+      {/*Favorite Movies Section */}
+      <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', marginTop:'1.5rem', textAlign: 'center' }}>Favorite Movies</h1>
+      <div style={{ fontFamily: 'sans-serif', fontSize: '1rem',maxWidth: '750px',  margin: '0 auto', padding:'0.5rem', backgroundColor: '#232323', borderRadius: '12px', border: '1px solid #5a0000', color: '#ffffff' }}>
+        <div>
+          
+        </div>      
+      </div>
     </div>
 )
 }
