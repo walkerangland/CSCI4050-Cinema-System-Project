@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs'
 import { NextResponse } from 'next/server'
 import nodemailer from 'nodemailer'
 import crypto from 'crypto'
+import { encrypt } from '../../../../lib/encryption'
 
 const prisma = new PrismaClient()
 
@@ -24,9 +25,9 @@ export async function POST(req) {
   } = await req.json()
 
   // Validation
-  if (!email || !password || !username || !firstName || !lastName) {
+  if (!email || !password || !firstName || !lastName) {
     return NextResponse.json(
-      { message: 'Email, password, username, first name, and last name are required.' },
+      { message: 'Email, password, first name, and last name are required.' },
       { status: 400 }
     )
   }
@@ -48,29 +49,47 @@ export async function POST(req) {
     const verificationToken = crypto.randomBytes(32).toString('hex')
     const verificationTokenExpires = new Date(Date.now() + 1000 * 60 * 60 * 24) // 24 hours
 
+    const addressData = (street && city && state) ? {
+      create: {
+        street: aptNumber ? `${street} Apt ${aptNumber}` : street,
+        city,
+        state,
+        zipCode: '00000'
+      }
+    } : undefined
+
+    const paymentCardsData = creditCards && creditCards.length > 0 ? {
+      create: creditCards.map(card => {
+        const [month, year] = card.expirationDate.split('/')
+        return {
+          cardholderName: card.cardholderName,
+          encryptedNumber: encrypt(card.cardNumber),
+          expirationMonth: parseInt(month, 10) || 1,
+          expirationYear: parseInt(year, 10) || 2026,
+        }
+      })
+    } : undefined
+
     // Store user data in database
     const user = await prisma.user.create({
       data: {
         email,
-        username,
         passwordHash,
         firstName,
         lastName,
-        phone,
-        street,
-        city,
-        state,
-        aptNumber,
-        promotions: promotions || false,
+        phoneNumber: phone || null,
+        promotionOptIn: promotions || false,
         status: 'INACTIVE', // Not verified yet
         role: 'CUSTOMER',
-        verificationToken,
-        verificationTokenExpires,
-        creditCards: {
-          create: creditCards || []
-        }
-      },
-      include: { creditCards: true }
+        address: addressData,
+        paymentCards: paymentCardsData,
+        verificationTokens: {
+          create: {
+            token: verificationToken,
+            expiresAt: verificationTokenExpires
+          }
+        },
+      }
     })
 
     // Send confirmation email
