@@ -16,8 +16,12 @@ export async function POST(req) {
   try {
     const user = await prisma.user.findFirst({
       where: {
-        verificationToken: token,
-        verificationTokenExpires: { gt: new Date() }
+        verificationTokens: {
+        some: {
+        token: token,
+        expiresAt: { gt: new Date() }
+        }
+      }
       }
     })
 
@@ -33,8 +37,11 @@ export async function POST(req) {
       where: { id: user.id },
       data: {
         status: 'ACTIVE',
-        verificationToken: null,
-        verificationTokenExpires: null
+        verificationTokens: {
+          deleteMany: {
+            token: token,
+          }
+        }
       }
     })
 
