@@ -11,7 +11,7 @@ export default function ProfilePage() {
   const [isEditing, setEditing] = useState(false)
 
   const [editForm, setEditForm] = useState({
-    firstName: '', lastName: '', phone: '', street: '', city: '', state: '', aptNumber: '',
+    firstName: '', lastName: '', phoneNumber: '', street: '', city: '', state: '', aptNumber: '',
     currentPassword: '', newPassword: ''
   })
 
@@ -25,7 +25,7 @@ export default function ProfilePage() {
           setEditForm({
             firstName: data.firstName || '',
             lastName: data.lastName || '',
-            phone: data.phoneNumber || '',
+            phoneNumber: data.phoneNumber || '',
             street: data.address?.street || '',
             city: data.address?.city || '',
             state: data.address?.state || '',
@@ -82,7 +82,7 @@ return (
         <button onClick= {() => setEditing(true)} style={{type:'button', padding: '0.4rem', backgroundColor: 'transparent', color: '#5972ff', outline: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold'}}>Edit...</button>
         )}
         {isEditing && (
-        <button onClick= {() => setEditing(false)} style={{type:'button', padding: '0.4rem', backgroundColor: 'transparent', color: '#5972ff', outline: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold'}}>Submit Changes</button>
+        <button onClick= {() => handleSubmit()} style={{type:'button', padding: '0.4rem', backgroundColor: 'transparent', color: '#5972ff', outline: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold'}}>Submit Changes</button>
         )}
         {isEditing && (
         <button onClick= {() => setEditing(false)} style={{type:'button', padding: '0.4rem', backgroundColor: 'transparent', color: '#ff5959', outline: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold'}}>Cancel</button>
@@ -111,7 +111,7 @@ return (
             <p style={{fontWeight: 'bold'}}>Phone:</p>
             {!isEditing && ( <p>{userData.phoneNumber || 'None'}</p> )}
             {isEditing && ( 
-              <div><input type='tel' name="phone" value={editForm.phone} onChange={handleChange} placeholder='Phone Number' style={{ width: '100%', boxSizing: 'border-box' }} /></div>
+              <div><input type='tel' name="phoneNumber" value={editForm.phoneNumber} onChange={handleChange} placeholder='Phone Number' style={{ width: '100%', boxSizing: 'border-box' }} /></div>
             )}
           </div>
           <div style = {{ padding:'0.5rem', maxWidth:'15%', wordWrap:'break-word'}}>
