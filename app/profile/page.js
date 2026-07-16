@@ -2,6 +2,8 @@
 import styles from '../home.module.css'
 import { useState, useEffect } from 'react'
 import { InputField } from '../register/page'
+import { GetMovieByID } from '../../lib/movies'
+import Link from 'next/link'
 
 export default function ProfilePage() {
   const [userData, setUserData] = useState(null)
@@ -114,7 +116,7 @@ return (
           </div>
           <div style = {{ padding:'0.5rem', maxWidth:'15%', wordWrap:'break-word'}}>
             <p style={{fontWeight: 'bold'}}>Password:</p>
-            {!isEditing && ( <p>********</p> )}( 
+            {!isEditing && ( <p>********</p> )}
             {isEditing && ( 
             <div style={{display: 'flex', flexDirection: 'column', gap: '0.25rem'}}>
                 <input type='password' name="currentPassword" value={editForm.currentPassword} onChange={handleChange} placeholder='Current Password' style={{ width: '100%', boxSizing: 'border-box' }} />
@@ -161,11 +163,11 @@ return (
       <div style={{ fontFamily: 'sans-serif', fontSize: '1rem', maxWidth: '750px', margin: '0 auto', padding: '1rem', backgroundColor: '#232323', borderRadius: '12px', border: '1px solid #5a0000', color: '#ffffff' }}>
         {userData.favorites && userData.favorites.length > 0 ? (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            {userData.favorites.map((movieId) => {
-              const movieData = GetMovieByID(movieId)
+            {userData.favorites.map((fav) => {
+              const movieData = GetMovieByID(fav.movieId) 
               if (!movieData) return null
               return (
-                <div key={movieId} style={{ display: 'flex', gap: '1rem', padding: '0.5rem', background: '#1c1c1c', borderRadius: '8px' }}>
+                <div key={fav.id} style={{ display: 'flex', gap: '1rem', padding: '0.5rem', background: '#1c1c1c', borderRadius: '8px' }}>
                   <img src={movieData.posterUrl} alt={movieData.title} style={{ width: '50px', height: '75px', borderRadius: '4px', objectFit: 'cover' }} />
                   <div>
                     <p style={{ fontWeight: 'bold', fontSize: '1rem', margin: '0 0 0.25rem' }}>{movieData.title}</p>
@@ -174,6 +176,7 @@ return (
                 </div>
               )
             })}
+            
           </div>
         ) : (
           <p style={{ textAlign: 'center', color: '#aaa' }}>No favorite movies added yet.</p>
@@ -181,7 +184,7 @@ return (
       </div>
     </div>
   )
-
+}
 function CardElement({ card }) {
   return (
     <div style={{ paddingTop: '0.5rem' }}>
@@ -201,5 +204,4 @@ function CardElement({ card }) {
       </div>
     </div>
   )
-}
 }
