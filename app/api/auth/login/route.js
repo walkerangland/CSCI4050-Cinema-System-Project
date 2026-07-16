@@ -42,7 +42,8 @@ if(!passwordMatch) {
       { expiresIn: '7d' }
   )
 
-cookies().set('auth_token', token, {
+const cookieStore = await cookies()
+cookieStore.set('auth_token', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     maxAge: 60 * 60 * 24 * 7,

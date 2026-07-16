@@ -1,10 +1,8 @@
 'use client'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 export default function LoginPage() {
-  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -15,24 +13,31 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
 
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    })
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
 
-    const data = await res.json()
-    setLoading(false)
+      const text = await res.text()
+      const data = text ? JSON.parse(text) : {}
+      
+      setLoading(false)
 
-    if (!res.ok) {
-      setError(data.message)
-      return
-    }
+      if (!res.ok) {
+        setError(data.message || 'An unexpected error occurred.')
+        return
+      }
 
-    if (data.role === 'ADMIN') {
-      router.push('/admin')
-    } else {
-      router.push('/')
+      if (data.role === 'ADMIN' || data.user?.role === 'ADMIN') {
+        window.location.href = '/admin'
+      } else {
+        window.location.href = '/profile'
+      }
+    } catch (err) {
+      setLoading(false)
+      setError('A network error occurred. Please try again.')
     }
   }
 
