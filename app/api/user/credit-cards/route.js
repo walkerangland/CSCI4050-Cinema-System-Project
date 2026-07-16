@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client'
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import jwt from 'jsonwebtoken'
+import { encrypt, decrypt } from '../../../../lib/encryption'
 
 const prisma = new PrismaClient()
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
@@ -9,6 +10,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
 // Get user's saved credit cards
 export async function GET(req) {
   try {
+    const cookies = await cookies()
     const token = cookies().get('auth_token')?.value
 
     if (!token) {
@@ -31,8 +33,18 @@ export async function GET(req) {
         // Don't return CVV for security
       }
     })
+    //decrypt credit cards
+    const maskedCards = creditCards.map(card => {
+      const decryptedNumber = decrypt(card.encryptedNumber)
+      return {
+        id: card.id,
+        cardholderName: card.cardholderName,
+        expirationDate: `${card.expirationMonth}/${card.expirationYear}`,
+        cardNumber: `**** **** **** ${decryptedNumber.slice(-4)}` //only sends the last 4 digits
+      }
+    })
 
-    return NextResponse.json(creditCards, { status: 200 })
+    return NextResponse.json(maskedCards, { status: 200 })
   } catch (error) {
     console.error('Credit cards fetch error:', error)
     return NextResponse.json(
@@ -45,6 +57,7 @@ export async function GET(req) {
 // Add new credit card
 export async function POST(req) {
   try {
+    const cookies = await cookies()
     const token = cookies().get('auth_token')?.value
 
     if (!token) {
@@ -65,6 +78,9 @@ export async function POST(req) {
         { status: 400 }
       )
     }
+    if (existingCardCount >= 3) {
+      return NextResponse.json({ message: 'Maximum credit card limit reached.' }, { status: 403 })
+    }
 
     // Check if user exists
     const user = await prisma.user.findUnique({
@@ -78,19 +94,20 @@ export async function POST(req) {
       )
     }
 
-    // Create credit card
-    const creditCard = await prisma.creditCard.create({
+    //create credit card
+    const [month, year] = expirationDate.split('/')
+    const paymentCard = await prisma.paymentCard.create({
       data: {
         userId,
-        cardNumber,
-        expirationDate,
-        cvv,
+        encryptedNumber: encrypt(cardNumber),
+        expirationMonth: parseInt(month, 10) || 1,
+        expirationYear: parseInt(year, 10) || 2026,
         cardholderName
       },
       select: {
         id: true,
-        cardNumber: true,
-        expirationDate: true,
+        expirationMonth: true,
+        expirationYear: true,
         cardholderName: true
       }
     })
@@ -111,6 +128,7 @@ export async function POST(req) {
 // Delete credit card
 export async function DELETE(req) {
   try {
+    const cookies = await cookies()
     const token = cookies().get('auth_token')?.value
 
     if (!token) {
