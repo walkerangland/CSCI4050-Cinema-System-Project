@@ -45,8 +45,12 @@ export default function RootLayout({ children }) {
           <nav className={styles.nav}>
             <Link href="/search" className={styles.navLink}>Search</Link>
             <Link href="/book" className={styles.navLink}>Book</Link>
-            <Link href="/login" className={styles.navLink} style={{ border: '2px solid #c0392b' }}>Login</Link>
-            {!loading && !isLoggedIn && <Link href="/register" className={styles.navLink}>Register</Link>}
+            {!loading && !isLoggedIn && (
+              <>
+                <Link href="/login" className={styles.navLink} style={{ border: '2px solid #c0392b' }}>Login</Link>
+                <Link href="/register" className={styles.navLink}>Register</Link>
+              </>
+            )}
             {!loading && isLoggedIn && (
               <button
                 onClick={handleLogout}
@@ -65,7 +69,9 @@ export default function RootLayout({ children }) {
               </button>
             )}
           </nav>
-          {isLoggedIn && <Link href="/profile" className={styles.profile}></Link>}
+          {!loading && isLoggedIn && (
+            <Link href="/profile" className={styles.profile}></Link>
+          )}
         </header>
 
         <main className={styles.container}>{children}</main>
