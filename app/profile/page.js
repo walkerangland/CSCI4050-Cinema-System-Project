@@ -1,6 +1,6 @@
 'use client'
 import styles from '../home.module.css'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { InputField } from '../register/page'
 
 export default function ProfilePage() {

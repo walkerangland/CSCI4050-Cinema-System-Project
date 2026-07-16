@@ -9,7 +9,8 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
 // Get user profile data including username, favorites, credit cards, address
 export async function GET(req) {
   try {
-    const token = cookies().get('auth_token')?.value
+    const cookieStore = await cookies()
+    const token = cookieStore.get('auth_token')?.value
 
     if (!token) {
       return NextResponse.json(
@@ -26,22 +27,18 @@ export async function GET(req) {
       select: {
         id: true,
         email: true,
-        username: true,
         firstName: true,
         lastName: true,
-        phone: true,
-        street: true,
-        city: true,
-        state: true,
-        aptNumber: true,
-        favoriteMovies: true,
-        creditCards: {
+        phoneNumber: true,
+        favorites: true,
+        address: true,
+        paymentCards: {    
           select: {
             id: true,
-            cardNumber: true,
-            expirationDate: true,
+            encryptedNumber: true,
+            expirationMonth: true,
+            expirationYear: true,
             cardholderName: true
-            // Don't return CVV for security
           }
         }
       }
