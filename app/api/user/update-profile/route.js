@@ -10,7 +10,8 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
 // EditUserData + ProfileChangeConfirmation
 export async function POST(req) {
   try {
-    const token = cookies().get('auth_token')?.value
+    const cookieStore = await cookies()
+    const token = cookieStore.get('auth_token')?.value
 
     if (!token) {
       return NextResponse.json(
@@ -22,7 +23,7 @@ export async function POST(req) {
     const decoded = jwt.verify(token, JWT_SECRET)
     const userId = decoded.userId
 
-    const { firstName, lastName, phone, street, city, state, aptNumber, username } = await req.json()
+    const { firstName, lastName, phoneNumber, street, city, state, aptNumber, username } = await req.json()
 
     // Get current user for comparison
     const currentUser = await prisma.user.findUnique({
@@ -55,7 +56,7 @@ export async function POST(req) {
       data: {
         ...(firstName && { firstName }),
         ...(lastName && { lastName }),
-        ...(phone && { phone }),
+        ...(phoneNumber && { phoneNumber }),
         ...(street && { street }),
         ...(city && { city }),
         ...(state && { state }),
@@ -85,7 +86,7 @@ export async function POST(req) {
         <ul>
           ${firstName ? `<li>First Name: ${firstName}</li>` : ''}
           ${lastName ? `<li>Last Name: ${lastName}</li>` : ''}
-          ${phone ? `<li>Phone: ${phone}</li>` : ''}
+          ${phoneNumber ? `<li>Phone: ${phoneNumber}</li>` : ''}
           ${street ? `<li>Street: ${street}</li>` : ''}
           ${city ? `<li>City: ${city}</li>` : ''}
           ${state ? `<li>State: ${state}</li>` : ''}

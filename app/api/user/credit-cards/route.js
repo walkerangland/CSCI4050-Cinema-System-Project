@@ -11,7 +11,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
 export async function GET(req) {
   try {
     const cookies = await cookies()
-    const token = cookies().get('auth_token')?.value
+    const token = cookies.get('auth_token')?.value
 
     if (!token) {
       return NextResponse.json(
@@ -57,8 +57,8 @@ export async function GET(req) {
 // Add new credit card
 export async function POST(req) {
   try {
-    const cookies = await cookies()
-    const token = cookies().get('auth_token')?.value
+    const cookieStore = await cookies()
+    const token = cookieStore.get('auth_token')?.value
 
     if (!token) {
       return NextResponse.json(
@@ -72,15 +72,15 @@ export async function POST(req) {
     const { cardNumber, expirationDate, cvv, cardholderName } = await req.json()
 
     // Validation
-    if (!cardNumber || !expirationDate || !cvv || !cardholderName) {
+    if (!cardNumber || !expirationDate || !cardholderName) {
       return NextResponse.json(
-        { message: 'Card number, expiration date, CVV, and cardholder name are required.' },
+        { message: 'Card number, expiration date, and cardholder name are required.' },
         { status: 400 }
       )
     }
-    if (existingCardCount >= 3) {
-      return NextResponse.json({ message: 'Maximum credit card limit reached.' }, { status: 403 })
-    }
+    //if (creditCards.length >= 3) {
+    //  return NextResponse.json({ message: 'Maximum credit card limit reached.' }, { status: 403 })
+    //}
 
     // Check if user exists
     const user = await prisma.user.findUnique({
@@ -113,7 +113,7 @@ export async function POST(req) {
     })
 
     return NextResponse.json(
-      { message: 'Credit card added successfully.', creditCard },
+      { message: 'Credit card added successfully.', card: paymentCard },
       { status: 201 }
     )
   } catch (error) {
