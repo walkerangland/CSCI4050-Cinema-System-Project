@@ -4,57 +4,57 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url = env("DATABASE_URL")
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id                    Int                  @id @default(autoincrement())
-  firstName             String
-  lastName              String
-  email                 String               @unique
-  phoneNumber           String?
-  passwordHash          String
-  role                  UserRole            @default(CUSTOMER)
-  status                UserStatus           @default(INACTIVE)
-  promotionOptIn        Boolean              @default(false)
+  id             Int        @id @default(autoincrement())
+  firstName      String
+  lastName       String
+  email          String     @unique
+  phoneNumber    String?
+  passwordHash   String
+  role           UserRole   @default(CUSTOMER)
+  status         UserStatus @default(INACTIVE)
+  promotionOptIn Boolean    @default(false)
 
-  address               Address?
-  paymentCards          PaymentCard[]
-  favorites             FavoriteMovie[]
-  bookings              Booking[]
-  verificationTokens    VerificationToken[]
-  passwordResetTokens   PasswordResetToken[]
+  address             Address?
+  paymentCards        PaymentCard[]
+  favorites           FavoriteMovie[]
+  bookings            Booking[]
+  verificationTokens  VerificationToken[]
+  passwordResetTokens PasswordResetToken[]
 
-  createdAt             DateTime             @default(now())
-  updatedAt             DateTime             @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Address {
-  id        Int     @id @default(autoincrement())
-  userId    Int     @unique
-  street    String
-  city      String
-  state     String
-  zipCode   String
+  id      Int    @id @default(autoincrement())
+  userId  Int    @unique
+  street  String
+  city    String
+  state   String
+  zipCode String
 
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model PaymentCard {
-  id                Int      @id @default(autoincrement())
-  userId            Int
-  cardholderName    String
-  encryptedNumber   String
-  expirationMonth   Int
-  expirationYear    Int
-  billingZip        String?
-  createdAt         DateTime @default(now())
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  cardholderName  String
+  encryptedNumber String
+  expirationMonth Int
+  expirationYear  Int
+  billingZip      String?
+  createdAt       DateTime @default(now())
 
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Movie {
-  id          Int             @id @default(autoincrement())
+  id          Int         @id @default(autoincrement())
   title       String
   genre       String
   rating      String
@@ -67,11 +67,11 @@ model Movie {
   producer    String?
   cast        String?
 
-  showtimes   Showtime[]
-  favorites   FavoriteMovie[]
+  showtimes Showtime[]
+  favorites FavoriteMovie[]
 
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model FavoriteMovie {
@@ -80,64 +80,64 @@ model FavoriteMovie {
   movieId   Int
   createdAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  movie     Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
 
   @@unique([userId, movieId])
 }
 
 model Hall {
-  id        Int        @id @default(autoincrement())
-  name      String
-  capacity  Int
+  id       Int    @id @default(autoincrement())
+  name     String
+  capacity Int
 
   seats     Seat[]
   showtimes Showtime[]
 }
 
 model Seat {
-  id       Int      @id @default(autoincrement())
-  hallId   Int
-  row      String
-  number   Int
+  id     Int    @id @default(autoincrement())
+  hallId Int
+  row    String
+  number Int
 
-  hall     Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
-  tickets  Ticket[]
+  hall    Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  tickets Ticket[]
 
   @@unique([hallId, row, number])
 }
 
 model Showtime {
-  id        Int       @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   movieId   Int
   hallId    Int
   startTime DateTime
 
-  movie     Movie     @relation(fields: [movieId], references: [id], onDelete: Cascade)
-  hall      Hall      @relation(fields: [hallId], references: [id])
-  bookings  Booking[]
+  movie    Movie     @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  hall     Hall      @relation(fields: [hallId], references: [id])
+  bookings Booking[]
 
-  @@unique([movieId, hallId, startTime])
+  @@unique([hallId, startTime])
 }
 
 model TicketPrice {
-  id        Int            @id @default(autoincrement())
-  category  TicketCategory @unique
-  price     Decimal        @db.Decimal(10, 2)
+  id       Int            @id @default(autoincrement())
+  category TicketCategory @unique
+  price    Decimal        @db.Decimal(10, 2)
 }
 
 model Booking {
-  id            Int            @id @default(autoincrement())
+  id            Int           @id @default(autoincrement())
   userId        Int
   showtimeId    Int
-  bookingNumber String         @unique
-  status        BookingStatus  @default(PENDING)
-  totalPrice    Decimal        @db.Decimal(10, 2)
-  createdAt     DateTime       @default(now())
+  bookingNumber String        @unique
+  status        BookingStatus @default(PENDING)
+  totalPrice    Decimal       @db.Decimal(10, 2)
+  createdAt     DateTime      @default(now())
 
-  user          User           @relation(fields: [userId], references: [id])
-  showtime      Showtime       @relation(fields: [showtimeId], references: [id])
-  tickets       Ticket[]
+  user     User     @relation(fields: [userId], references: [id])
+  showtime Showtime @relation(fields: [showtimeId], references: [id])
+  tickets  Ticket[]
 }
 
 model Ticket {
@@ -147,20 +147,20 @@ model Ticket {
   ticketCategory TicketCategory
   price          Decimal        @db.Decimal(10, 2)
 
-  booking        Booking        @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  seat           Seat           @relation(fields: [seatId], references: [id])
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  seat    Seat    @relation(fields: [seatId], references: [id])
 
   @@unique([bookingId, seatId])
 }
 
 model Promotion {
-  id             Int      @id @default(autoincrement())
-  code           String   @unique
-  description    String?
-  discountPercent Decimal @db.Decimal(5, 2)
-  active         Boolean  @default(true)
-  expiresAt      DateTime?
-  createdAt      DateTime @default(now())
+  id              Int       @id @default(autoincrement())
+  code            String    @unique
+  description     String?
+  discountPercent Decimal   @db.Decimal(5, 2)
+  active          Boolean   @default(true)
+  expiresAt       DateTime?
+  createdAt       DateTime  @default(now())
 }
 
 model VerificationToken {
@@ -170,7 +170,7 @@ model VerificationToken {
   expiresAt DateTime
   used      Boolean  @default(false)
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model PasswordResetToken {
@@ -180,7 +180,7 @@ model PasswordResetToken {
   expiresAt DateTime
   used      Boolean  @default(false)
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum UserRole {
