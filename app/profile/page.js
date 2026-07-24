@@ -11,7 +11,7 @@ export default function ProfilePage() {
   const [isEditing, setEditing] = useState(false)
 
   const [editForm, setEditForm] = useState({
-    firstName: '', lastName: '', phoneNumber: '', street: '', city: '', state: '', aptNumber: '',
+    firstName: '', lastName: '', phoneNumber: '', street: '', city: '', state: '', zipCode: '',
     currentPassword: '', newPassword: ''
   })
 
@@ -29,7 +29,7 @@ export default function ProfilePage() {
             street: data.address?.street || '',
             city: data.address?.city || '',
             state: data.address?.state || '',
-            aptNumber: '',
+            zipCode: data.address?.zipCode || '',
             currentPassword: '', 
             newPassword: ''
           })
@@ -68,7 +68,7 @@ export default function ProfilePage() {
       }
     }
     
-    alert('Profile updated!')
+    alert('Profile updated! (JSON: ' + JSON.stringify(editForm) + ')')
     window.location.reload()
   }
 
@@ -127,7 +127,7 @@ return (
           <div style = {{ padding:'0.5rem', maxWidth:'25%', wordWrap:'break-word'}}>
             <p style={{fontWeight: 'bold'}}>Address:</p>
             {!isEditing && ( 
-            <p>{userData.address ? `${userData.address.street}, ${userData.address.city}, ${userData.address.state}` : 'No address saved.'}</p>
+            <p>{userData.address ? `${userData.address.street}, ${userData.address.city}, ${userData.address.state}, ${userData.address.zipCode}` : 'No address saved.'}</p>
             )}
             {isEditing && ( 
             <div style={{display: 'flex', flexDirection: 'column', gap: '0.25rem'}}>
@@ -136,6 +136,7 @@ return (
                   <input type="text" name="city" value={editForm.city} onChange={handleChange} placeholder='City' style={{ width: '50%', boxSizing: 'border-box' }} />
                   <input type="text" name="state" value={editForm.state} onChange={handleChange} placeholder='State' style={{ width: '50%', boxSizing: 'border-box' }} />
                 </div>
+                <input type="text" name="zipCode" value={editForm.zipCode} onChange={handleChange} placeholder='Zip Code' style={{ width: '100%', boxSizing: 'border-box' }} />
               </div>
             )}
           </div>

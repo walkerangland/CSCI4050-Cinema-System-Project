@@ -23,7 +23,8 @@ export async function POST(req) {
     const decoded = jwt.verify(token, JWT_SECRET)
     const userId = decoded.userId
 
-    const { firstName, lastName, phoneNumber, street, city, state, aptNumber, username } = await req.json()
+    const { firstName, lastName, phoneNumber, street, city, state, zipCode } = await req.json()
+    console.log('Received profile update data:', { firstName, lastName, phoneNumber, street, city, state, zipCode })
 
     // Get current user for comparison
     const currentUser = await prisma.user.findUnique({
@@ -37,19 +38,6 @@ export async function POST(req) {
       )
     }
 
-    // Check if username already exists (if being changed)
-    if (username && username !== currentUser.username) {
-      const existingUsername = await prisma.user.findUnique({
-        where: { username }
-      })
-      if (existingUsername) {
-        return NextResponse.json(
-          { message: 'Username already taken.' },
-          { status: 409 }
-        )
-      }
-    }
-
     // Update user profile data
     const updatedUser = await prisma.user.update({
       where: { id: userId },
@@ -57,13 +45,27 @@ export async function POST(req) {
         ...(firstName && { firstName }),
         ...(lastName && { lastName }),
         ...(phoneNumber && { phoneNumber }),
-        ...(street && { street }),
-        ...(city && { city }),
-        ...(state && { state }),
-        ...(aptNumber && { aptNumber }),
-        ...(username && { username })
-      }
+      },
     })
+
+    // Update address or create if it doesn't exist
+
+      const updatedAddress = await prisma.address.upsert({
+        where: { userId: userId },
+        update: {
+          ...(street && { street: street }),
+          ...(city && { city: city }),
+          ...(state && { state: state }),
+          ...(zipCode && { zipCode: zipCode }),
+        },
+        create: {
+          userId: userId,
+          street: street,
+          city: city,
+          state: state,
+          zipCode: zipCode,
+        },
+      })
 
     // Send profile change confirmation email
     const transporter = nodemailer.createTransport({
