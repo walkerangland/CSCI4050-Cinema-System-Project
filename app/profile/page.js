@@ -56,12 +56,6 @@ export default function ProfilePage() {
         if (res.ok) {
           const data = await res.json()
           setCardData(data)
-          setCardForm({
-            cardNumber: data[0]?.cardNumber || '',
-            expirationMonth: data[0]?.expirationMonth || '',
-            expirationYear: data[0]?.expirationYear || '',
-            cardholderName: data[0]?.cardholderName || ''
-          })
         }
       } catch (err) {
         console.error(err)
@@ -76,12 +70,12 @@ export default function ProfilePage() {
       headers: { 'Content-Type': 'application/json'},
       body: JSON.stringify(cardForm)
     })
-    const data = await res.json
+    const data = await res.json()
     if (!res.ok) {
-      alert(res.message)
+      alert(data.message || 'Failed to submit card')
       return
     }
-    alert('Card updated! (JSON : ' + JSON>stringify(cardForm) + ')')
+    alert('Card updated! (JSON : ' + JSON.stringify(cardForm) + ')')
     window.location.reload()
   }
 
@@ -190,8 +184,12 @@ return (
         {cardData.length < 3 && !isAddCard &&(
           <button onClick= {() => setAddCard(true)} style={{type:'button', padding: '0.4rem', backgroundColor: 'transparent', color: '#59ff6f', outline: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold'}}>Add New Card...</button>
         )}
+
         {isAddCard && (
-          <button onClick= {() => setAddCard(false)} style={{type:'button', padding: '0.4rem', backgroundColor: 'transparent', color: '#ff5959', outline: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold'}}>Cancel</button>
+          <div>
+            <button onClick= {() => handleCardSubmit()} style={{type:'button', padding: '0.4rem', backgroundColor: 'transparent', color: '#5972ff', outline: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold'}}>Submit</button>
+            <button onClick= {() => setAddCard(false)} style={{type:'button', padding: '0.4rem', backgroundColor: 'transparent', color: '#ff5959', outline: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold'}}>Cancel</button>
+          </div>
         )}
 
         {cardData && cardData.length > 0 ? (
@@ -215,7 +213,7 @@ return (
             <div style={{ padding: '0.5rem', maxWidth: '25%', wordWrap: 'break-word' }}>
               <p style={{ fontWeight: 'bold' }}>Expiration Date:</p>
                 <div>
-                  <input type="text" name="expirationMonth" placeholder="MM" value={cardForm.expirationMonth} onChange={(e) => setCardForm({...cardForm, expirationMonth: e.target.value})} />
+                  <input type="number" max='12' name="expirationMonth" placeholder="MM" value={cardForm.expirationMonth} onChange={(e) => setCardForm({...cardForm, expirationMonth: e.target.value})} />
                   <input type="text" name="expirationYear" placeholder="YYYY" value={cardForm.expirationYear} onChange={(e) => setCardForm({...cardForm, expirationYear: e.target.value})} />
                 </div>
             </div>
@@ -223,6 +221,7 @@ return (
               <p style={{ fontWeight: 'bold' }}>Name on card:</p>
                 <input type="text" name="cardholderName" value={cardForm.cardholderName} placeholder="Cardholder Name" onChange={(e) => setCardForm({...cardForm, cardholderName: e.target.value})} />
             </div>
+            
       </div>
         )}
       </div>  

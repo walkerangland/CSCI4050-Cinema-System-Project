@@ -74,7 +74,7 @@ export async function POST(req) {
     const { cardNumber, expirationMonth, expirationYear, cardholderName } = await req.json()
 
     // Validation
-    if (!cardNumber || !expirationMonth || expirationYear || !cardholderName) {
+    if (!cardNumber || !expirationMonth || !expirationYear || !cardholderName) {
       return NextResponse.json(
         { message: 'Card number, expiration date, and cardholder name are required.' },
         { status: 400 }
