@@ -22,9 +22,7 @@ export async function POST(req) {
 
     const decoded = jwt.verify(token, JWT_SECRET)
     const userId = decoded.userId
-
     const { firstName, lastName, phoneNumber, street, city, state, zipCode } = await req.json()
-    console.log('Received profile update data:', { firstName, lastName, phoneNumber, street, city, state, zipCode })
 
     // Get current user for comparison
     const currentUser = await prisma.user.findUnique({

@@ -7,12 +7,18 @@ import Link from 'next/link'
 
 export default function ProfilePage() {
   const [userData, setUserData] = useState(null)
+  const [cardData, setCardData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [isEditing, setEditing] = useState(false)
+  const [isAddCard, setAddCard] = useState(false)
 
   const [editForm, setEditForm] = useState({
     firstName: '', lastName: '', phoneNumber: '', street: '', city: '', state: '', zipCode: '',
     currentPassword: '', newPassword: ''
+  })
+
+  const [cardForm, setCardForm] = useState({
+    cardNumber: '', expirationMonth: '', expirationYear: '', cardholderName: ''
   })
 
   useEffect(() => {
@@ -42,6 +48,42 @@ export default function ProfilePage() {
     }
     fetchProfile()
   }, [])
+
+  useEffect(() => {
+  const fetchCardData = async () => {
+      try {
+        const res = await fetch('/api/user/credit-cards')
+        if (res.ok) {
+          const data = await res.json()
+          setCardData(data)
+          setCardForm({
+            cardNumber: data[0]?.cardNumber || '',
+            expirationMonth: data[0]?.expirationMonth || '',
+            expirationYear: data[0]?.expirationYear || '',
+            cardholderName: data[0]?.cardholderName || ''
+          })
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+    fetchCardData()
+  }, [])
+
+  const handleCardSubmit = async () => {
+    const res = await fetch('/api/user/credit-cards', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json'},
+      body: JSON.stringify(cardForm)
+    })
+    const data = await res.json
+    if (!res.ok) {
+      alert(res.message)
+      return
+    }
+    alert('Card updated! (JSON : ' + JSON>stringify(cardForm) + ')')
+    window.location.reload()
+  }
 
   const handleChange = (e) => setEditForm({ ...editForm, [e.target.name]: e.target.value })
 
@@ -145,17 +187,43 @@ return (
       {/* --- Credit Cards section --- */}
       <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', marginTop: '1.5rem', textAlign: 'center' }}>Credit Cards</h1>
       <div style={{ fontFamily: 'sans-serif', fontSize: '1rem', maxWidth: '750px', margin: '0 auto', padding: '0.5rem', backgroundColor: '#232323', borderRadius: '12px', border: '1px solid #5a0000', color: '#ffffff' }}>
-        {userData.paymentCards && userData.paymentCards.length > 0 ? (
-          userData.paymentCards.map((card, index) => (
+        {cardData.length < 3 && !isAddCard &&(
+          <button onClick= {() => setAddCard(true)} style={{type:'button', padding: '0.4rem', backgroundColor: 'transparent', color: '#59ff6f', outline: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold'}}>Add New Card...</button>
+        )}
+        {isAddCard && (
+          <button onClick= {() => setAddCard(false)} style={{type:'button', padding: '0.4rem', backgroundColor: 'transparent', color: '#ff5959', outline: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold'}}>Cancel</button>
+        )}
+
+        {cardData && cardData.length > 0 ? (
+          cardData.map((card, index) => (
             <div key={card.id} style={{ padding: '0.5rem' }}>
               <details>
                 <summary style={{ cursor: 'pointer', fontWeight: 'bold' }}>Card {index + 1} - {card.cardholderName}</summary>
-                <CardElement card={card} />
+                <CardElement card={card}/>
               </details>
             </div>
           ))
         ) : (
           <p style={{ textAlign: 'center', color: '#aaa', padding: '1rem' }}>No payment cards saved.</p>
+        )}
+        {isAddCard && (
+          <div style={{ display: 'flex' }}>
+            <div style={{ padding: '0.5rem', maxWidth: '25%', wordWrap: 'break-word' }}>
+              <p style={{ fontWeight: 'bold' }}>Card Number:</p>
+              <input type="text" name="cardNumber" value={cardForm.cardNumber} placeholder="Card Number" onChange={(e) => setCardForm({...cardForm, cardNumber: e.target.value})} />
+            </div>
+            <div style={{ padding: '0.5rem', maxWidth: '25%', wordWrap: 'break-word' }}>
+              <p style={{ fontWeight: 'bold' }}>Expiration Date:</p>
+                <div>
+                  <input type="text" name="expirationMonth" placeholder="MM" value={cardForm.expirationMonth} onChange={(e) => setCardForm({...cardForm, expirationMonth: e.target.value})} />
+                  <input type="text" name="expirationYear" placeholder="YYYY" value={cardForm.expirationYear} onChange={(e) => setCardForm({...cardForm, expirationYear: e.target.value})} />
+                </div>
+            </div>
+            <div style={{ padding: '0.5rem', maxWidth: '25%', wordWrap: 'break-word' }}>
+              <p style={{ fontWeight: 'bold' }}>Name on card:</p>
+                <input type="text" name="cardholderName" value={cardForm.cardholderName} placeholder="Cardholder Name" onChange={(e) => setCardForm({...cardForm, cardholderName: e.target.value})} />
+            </div>
+      </div>
         )}
       </div>  
 
@@ -187,8 +255,36 @@ return (
   )
 }
 function CardElement({ card }) {
+  const [clicked, setClicked] = useState(false);
+
+  const deleteCard = async () => {
+    const res = await fetch('api/user/credit-cards', {
+      method: 'DELETE',
+      headers:{ 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cardId: card.id })
+    })
+    const data = await res.json()
+    if (!res.ok) {
+      alert(data.message)
+      return
+    }
+    alert(data.message)
+    window.location.reload()
+
+  }
+
   return (
-    <div style={{ paddingTop: '0.5rem' }}>
+    <div style={{ paddingTop: '0.5rem', paddingBottom: '0.5rem'}}>
+      {!clicked && (
+        <button onClick= {() => setClicked(true)} style={{type:'button', padding: '0.4rem', backgroundColor: 'transparent', color: '#ff5959', outline: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold'}}>Delete Card</button>
+      )}
+      {clicked && (
+        <div style={{display:'flex', gap:'0.5rem'}}>
+          <span style={{ color: 'red' }}>Are you sure you want to delete this card?</span>
+          <button onClick= {() => deleteCard()} style={{type:'button', padding: '0.4rem', backgroundColor: 'transparent', color: '#5972ff', outline: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold'}}>Yes</button>
+          <button onClick= {() => setClicked(false)} style={{type:'button', padding: '0.4rem', backgroundColor: 'transparent', color: '#ff5959', outline: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold'}}>Cancel</button>
+        </div>
+      )}
       <div style={{ display: 'flex' }}>
         <div style={{ padding: '0.5rem', maxWidth: '25%', wordWrap: 'break-word' }}>
           <p style={{ fontWeight: 'bold' }}>Card Number:</p>
@@ -196,13 +292,13 @@ function CardElement({ card }) {
         </div>
         <div style={{ padding: '0.5rem', maxWidth: '25%', wordWrap: 'break-word' }}>
           <p style={{ fontWeight: 'bold' }}>Expiration Date:</p>
-          <p>{card.expirationDate}</p>
+          <p>{card.expirationMonth}/{card.expirationYear}</p>
         </div>
         <div style={{ padding: '0.5rem', maxWidth: '25%', wordWrap: 'break-word' }}>
           <p style={{ fontWeight: 'bold' }}>Name on card:</p>
           <p>{card.cardholderName}</p>
-        </div>
       </div>
     </div>
+      </div>
   )
 }

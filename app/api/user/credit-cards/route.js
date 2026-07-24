@@ -10,8 +10,8 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
 // Get user's saved credit cards
 export async function GET(req) {
   try {
-    const cookies = await cookies()
-    const token = cookies.get('auth_token')?.value
+    const cookieStore = await cookies()
+    const token = cookieStore.get('auth_token')?.value
 
     if (!token) {
       return NextResponse.json(
@@ -23,12 +23,13 @@ export async function GET(req) {
     const decoded = jwt.verify(token, JWT_SECRET)
     const userId = decoded.userId
 
-    const creditCards = await prisma.creditCard.findMany({
+    const creditCards = await prisma.PaymentCard.findMany({
       where: { userId },
       select: {
         id: true,
-        cardNumber: true,
-        expirationDate: true,
+        encryptedNumber: true,
+        expirationMonth: true,
+        expirationYear: true,
         cardholderName: true
         // Don't return CVV for security
       }
@@ -39,7 +40,8 @@ export async function GET(req) {
       return {
         id: card.id,
         cardholderName: card.cardholderName,
-        expirationDate: `${card.expirationMonth}/${card.expirationYear}`,
+        expirationMonth: card.expirationMonth,
+        expirationYear: card.expirationYear,
         cardNumber: `**** **** **** ${decryptedNumber.slice(-4)}` //only sends the last 4 digits
       }
     })
@@ -69,10 +71,10 @@ export async function POST(req) {
 
     const decoded = jwt.verify(token, JWT_SECRET)
     const userId = decoded.userId
-    const { cardNumber, expirationDate, cvv, cardholderName } = await req.json()
+    const { cardNumber, expirationMonth, expirationYear, cardholderName } = await req.json()
 
     // Validation
-    if (!cardNumber || !expirationDate || !cardholderName) {
+    if (!cardNumber || !expirationMonth || expirationYear || !cardholderName) {
       return NextResponse.json(
         { message: 'Card number, expiration date, and cardholder name are required.' },
         { status: 400 }
@@ -95,13 +97,12 @@ export async function POST(req) {
     }
 
     //create credit card
-    const [month, year] = expirationDate.split('/')
     const paymentCard = await prisma.paymentCard.create({
       data: {
         userId,
         encryptedNumber: encrypt(cardNumber),
-        expirationMonth: parseInt(month, 10) || 1,
-        expirationYear: parseInt(year, 10) || 2026,
+        expirationMonth: parseInt(expirationMonth, 10) || 1,
+        expirationYear: parseInt(expirationYear, 10) || 2026,
         cardholderName
       },
       select: {
@@ -128,8 +129,8 @@ export async function POST(req) {
 // Delete credit card
 export async function DELETE(req) {
   try {
-    const cookies = await cookies()
-    const token = cookies().get('auth_token')?.value
+    const cookieStore = await cookies()
+    const token = cookieStore.get('auth_token')?.value
 
     if (!token) {
       return NextResponse.json(
@@ -150,7 +151,7 @@ export async function DELETE(req) {
     }
 
     // Check if card belongs to user
-    const creditCard = await prisma.creditCard.findUnique({
+    const creditCard = await prisma.PaymentCard.findUnique({
       where: { id: cardId }
     })
 
@@ -162,7 +163,7 @@ export async function DELETE(req) {
     }
 
     // Delete credit card
-    await prisma.creditCard.delete({
+    await prisma.PaymentCard.delete({
       where: { id: cardId }
     })
 
