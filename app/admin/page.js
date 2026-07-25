@@ -31,11 +31,13 @@ export default function AdminPage() {
         {/* Menu Grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem', maxWidth: '800px' }}>
 
-          <div style={{ backgroundColor: '#1c1c1c', border: '1px solid #5a0000', borderRadius: '12px', padding: '2rem', textAlign: 'center', cursor: 'pointer' }}>
-            <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}></div>
-            <h3 style={{ color: '#ffffff', fontSize: '1.25rem', marginBottom: '0.5rem' }}>Manage Movies</h3>
-            <p style={{ color: '#aaaaaa', fontSize: '0.875rem' }}>Add, edit, or remove movies</p>
-          </div>
+         <Link href="/admin/movies" style={{ textDecoration: 'none' }}>
+           <div style={{ backgroundColor: '#1c1c1c', border: '1px solid #5a0000', borderRadius: '12px', padding: '2rem', textAlign: 'center', cursor: 'pointer' }}>
+             <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}></div>
+             <h3 style={{ color: '#ffffff', fontSize: '1.25rem', marginBottom: '0.5rem' }}>Manage Movies</h3>
+             <p style={{ color: '#aaaaaa', fontSize: '0.875rem' }}>Add, edit, or remove movies</p>
+           </div>
+         </Link>
 
           <div style={{ backgroundColor: '#1c1c1c', border: '1px solid #5a0000', borderRadius: '12px', padding: '2rem', textAlign: 'center', cursor: 'pointer' }}>
             <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}></div>
@@ -49,11 +51,13 @@ export default function AdminPage() {
             <p style={{ color: '#aaaaaa', fontSize: '0.875rem' }}>View and manage user accounts</p>
           </div>
 
-          <div style={{ backgroundColor: '#1c1c1c', border: '1px solid #5a0000', borderRadius: '12px', padding: '2rem', textAlign: 'center', cursor: 'pointer' }}>
-            <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}> </div>
-            <h3 style={{ color: '#ffffff', fontSize: '1.25rem', marginBottom: '0.5rem' }}>Showtimes</h3>
-            <p style={{ color: '#aaaaaa', fontSize: '0.875rem' }}>Schedule and manage showtimes</p>
-          </div>
+          <Link href="/admin/showtimes" style={{ textDecoration: 'none' }}>
+            <div style={{ backgroundColor: '#1c1c1c', border: '1px solid #5a0000', borderRadius: '12px', padding: '2rem', textAlign: 'center', cursor: 'pointer' }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}> </div>
+              <h3 style={{ color: '#ffffff', fontSize: '1.25rem', marginBottom: '0.5rem' }}>Showtimes</h3>
+              <p style={{ color: '#aaaaaa', fontSize: '0.875rem' }}>Schedule and manage showtimes</p>
+            </div>
+          </Link>
 
         </div>
       </div>

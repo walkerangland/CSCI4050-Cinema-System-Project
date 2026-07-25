@@ -6,8 +6,7 @@ const prisma = new PrismaClient()
 export async function POST(req) {
   try {
     const data = await req.json()
-    
-    // Map the status string to match the Prisma MovieStatus enum
+
     const statusEnum = data.status === 'coming-soon' ? 'COMING_SOON' : 'CURRENTLY_RUNNING'
 
     const movie = await prisma.movie.create({
@@ -25,11 +24,18 @@ export async function POST(req) {
       }
     })
 
-    return NextResponse.json({ message: 'Movie added successfully', movie },
-        { status: 201 })
+    return NextResponse.json({ message: 'Movie added successfully', movie }, { status: 201 })
   } catch (error) {
     console.error('Add movie error:', error)
-    return NextResponse.json({ message: 'Server error' },
-        { status: 500 })
+    return NextResponse.json({ message: 'Server error' }, { status: 500 })
+  }
+}
+
+export async function GET() {
+  try {
+    const movies = await prisma.movie.findMany({ orderBy: { createdAt: 'desc' } })
+    return NextResponse.json({ movies }, { status: 200 })
+  } catch (error) {
+    return NextResponse.json({ message: 'Failed to fetch movies.' }, { status: 500 })
   }
 }
