@@ -42,7 +42,23 @@ export default function Page({ params }) {
     }, [params])
 
     if (loading) return <div style={{ color: '#fff', textAlign: 'center', marginTop: '4rem' }}>Loading movie details...</div>
+    const showtimesList = showtimes.map((st) => {
+    const d = new Date(st.startTime)
+    const date = d.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+    })
+
+    const time = d.toLocaleTimeString(undefined, {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: "false",
+    })
+    return [date, time]
+})
     console.log('shotimes:', showtimes)
+    console.log('showtimes list ', showtimesList)
 
     return (
         <div style={{color: '#ffffff'}}>
@@ -75,28 +91,77 @@ export default function Page({ params }) {
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     />
                 </div>
+                <div style={{fontSize: '1.30rem'}}>
+                    <p>Showtimes:</p>
+                </div>
                 {movie.status === 'now-playing' && loading === false &&(
-                        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', paddingTop:'0.5rem', paddingBottom:'0.5rem' }}>
-                        {showtimes.map((startTime) => (
-                            <Link
-                            key={startTime}
-                            href={`/book?movie=${encodeURIComponent(movie.title)}&time=${encodeURIComponent(startTime)}`}
-                            style={{
-                                padding: '0.3rem 0.75rem',
-                                backgroundColor: '#1a1a2e',
-                                color: 'white',
-                                borderRadius: '6px',
-                                fontSize: '0.8rem',
-                                textDecoration: 'none',
-                            }}
-                            >
-                            {startTime}
-                            </Link>
-                        ))}
-                        </div>
+                    <div>
+                        <GenerateList showtimes={showtimesList} movie = {movie}/>
+                    </div>
                     )}
                     </div>
                 </div>
           </div>
     )
+}
+
+function GenerateList({showtimes, movie}) {
+  const byDate = showtimes.reduce((acc, [date, time]) => {
+    if (!acc[date]) acc[date] = [];
+    acc[date].push(time);
+    return acc;
+  }, {});
+
+  return (
+    <div>
+      {Object.entries(byDate).map(([date, times]) => (
+        <div key={date} style={{ marginBottom: '0.75rem' }}>
+          <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>
+            {date}
+          </div>
+
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            {times.map((time) => (
+              <div key={`${date}-${time}`}>
+                <Link
+                    key={`${date}-${time}`}
+                    href={`/book?movie=${encodeURIComponent(movie.title)}&time=${encodeURIComponent(date + ' '+ time)}`}
+                    style={{
+                    padding: '0.3rem 0.75rem',
+                    backgroundColor: '#1a1a2e',
+                    color: 'white',
+                    borderRadius: '6px',
+                    fontSize: '0.8rem',
+                    textDecoration: 'none',
+                    }}
+                >
+                    {time}
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function element() {
+    <div key = {st.id ?? d.toISOString}>
+        <p>{date}</p>
+        <Link
+            key={st.id ?? d.toISOString}
+            href={`/book?movie=${encodeURIComponent(movie.title)}&time=${encodeURIComponent(d.toISOString)}`}
+            style={{
+            padding: '0.3rem 0.75rem',
+            backgroundColor: '#1a1a2e',
+            color: 'white',
+            borderRadius: '6px',
+            fontSize: '0.8rem',
+            textDecoration: 'none',
+            }}
+        >
+            {time}
+        </Link>
+    </div>
 }
