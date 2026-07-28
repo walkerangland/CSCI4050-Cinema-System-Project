@@ -22,8 +22,8 @@ export default function ProfilePage() {
   })
 
   useEffect(() => {
+    try {
     const fetchProfile = async () => {
-      try {
         const res = await fetch('/api/user/profile')
         if (res.ok) {
           const data = await res.json()
@@ -40,13 +40,27 @@ export default function ProfilePage() {
             newPassword: ''
           })
         }
-      } catch (err) {
-        console.error(err)
-      } finally {
-        setLoading(false)
-      }
     }
+    const fetchCardData = async () => {
+    try {
+      const res = await fetch('/api/user/credit-cards')
+      if (res.ok) {
+        const data = await res.json()
+        setCardData(data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+    }
+    fetchCardData()
     fetchProfile()
+    } 
+    catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+
   }, [])
 
   useEffect(() => {
@@ -61,6 +75,7 @@ export default function ProfilePage() {
         console.error(err)
       }
     }
+    
     fetchCardData()
   }, [])
 
@@ -75,7 +90,7 @@ export default function ProfilePage() {
       alert(data.message || 'Failed to submit card')
       return
     }
-    alert('Card updated! (JSON : ' + JSON.stringify(cardForm) + ')')
+    alert('Card updated!')
     window.location.reload()
   }
 
@@ -104,7 +119,7 @@ export default function ProfilePage() {
       }
     }
     
-    alert('Profile updated! (JSON: ' + JSON.stringify(editForm) + ')')
+    alert('Profile updated!')
     window.location.reload()
   }
 

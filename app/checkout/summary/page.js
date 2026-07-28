@@ -1,5 +1,6 @@
 'use client'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams, useRouter} from 'next/navigation'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
  
@@ -15,6 +16,16 @@ export default function Page({ params }) {
   const child = parseInt(searchParams.get('child')) || 0
   const senior = parseInt(searchParams.get('senior')) || 0
   const total = searchParams.get('total') ? parseFloat(searchParams.get('total')) : 0.00
+  const [canProceed, setCanProceed] = useState(false)
+  const [editingEmail, setEditingEmail] = useState(false)
+  const [emailForm, setEmailForm] = useState({
+    email: ''
+  })
+  const [loading, setLoading] = useState(false)
+  const [emailLoading, setEmailLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [email, setEmail] = useState('')
+  
 
   const query = new URLSearchParams({
     showtimeId : showtimeId,
@@ -24,6 +35,33 @@ export default function Page({ params }) {
     child : child,
     senior : senior,
     }).toString()
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    try {
+      const res = await fetch('/api/user/update-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailForm.email }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.message || 'An unexpected error occurred.')
+      } else {
+        setEditingEmail(false)
+        setCanProceed(true)
+      }
+      alert(JSON.stringify(data.message))
+      window.location.reload()
+    } catch (error) {
+      console.error('Email update error:', error)
+      setError('Failed to update email.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const goToPayment = async () => {
     const authRes = await fetch('/api/user/profile')
@@ -35,6 +73,24 @@ export default function Page({ params }) {
     router.push(`/payment?${query}`)
   }
 
+  useEffect(() => {
+    try {
+    const fetchEmail = async () => {
+      const res = await fetch('/api/user/profile')
+      if (res.ok) {
+        const data = await res.json()
+        setEmail(data.email)
+      }
+    }
+    fetchEmail()
+  } catch (error) {
+    console.error('Error fetching email:', error)
+  } finally {
+    setEmailLoading(false)
+  }
+}, [])
+
+  if (emailLoading) return <div style={{ color: '#fff', textAlign: 'center', marginTop: '4rem' }}>Loading...</div>
   return (
   <div style={{ maxWidth: '900px', margin: '0 auto', padding: '2rem', backgroundColor: '#0d0d0d', color: '#ffffff' }}>
     <h1 style={{ fontSize: '2.0rem', fontWeight: 'bold', marginBottom: '1.5rem', textAlign: 'center' }}>Order Summary</h1>
@@ -48,12 +104,61 @@ export default function Page({ params }) {
           <p>{child} Child</p>
           <p>{senior} Senior</p>
           <p style = {{fontSize: '1.25rem', color: '#ffffff'}}><strong>Total Price before tax: </strong><br></br>${total.toFixed(2)}</p>
+          <div style={{display:'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
+            {!editingEmail && (
+            <div style={{display:'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+              <p style={{fontSize: '1.25rem', color: '#ffffff', fontWeight: 'bold'}}>Do you wish to use this email?</p>
+              <p>Email: {email}</p>
+            </div>
+            )}
+            {editingEmail && (
+            <div>
+              <label htmlFor="email">Enter new email: </label>
+              
+                <input type="email" id="email" placeholder="user@example.com" onChange={(e) => setEmailForm({ ...emailForm, email: e.target.value })} />
+              
+            </div>
+            )}
+            
+            {!canProceed && !editingEmail &&(
+            <div style={{display:'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem'}}>
+              <button
+              onClick={() => setCanProceed(true)}
+              style={{ width: '100%', padding: '0.75rem', backgroundColor: '#c0392b', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold', justifyContent: 'center', alignItems: 'center', cursor: 'pointer', marginTop: '1rem' }}
+              >Yes
+              </button>
+              <button
+              onClick={() => {
+                setEditingEmail(true)
+                setCanProceed(false)
+              }}
+              style={{ width: '100%', padding: '0.75rem', backgroundColor: '#c0392b', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold', justifyContent: 'center', alignItems: 'center', cursor: 'pointer', marginTop: '1rem' }}
+              >No 
+              </button>
+              </div>
+              )}
+              {!canProceed && editingEmail &&(
+                <div>
+              <button
+              type="submit"
+              disabled={loading}
+              style={{ width: '100%', padding: '0.75rem', backgroundColor: '#c0392b', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold', justifyContent: 'center', alignItems: 'center',  cursor: loading ? 'not-allowed' : 'pointer', marginTop: '1rem' }}
+              >Submit Email
+              </button> 
+              </div>
+              )}
+            
+           </form>
+          </div>
+          
           <div style={{justifyContent: 'center', alignItems: 'center', display: 'flex', marginTop: '1rem'}}>
-          <button
-          onClick={goToPayment}
-          type="submit"
-          style={{ width: '50%', padding: '0.75rem', backgroundColor: '#c0392b', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold', justifyContent: 'center', alignItems: 'center', cursor: 'pointer', marginTop: '1rem' }}
-        > Proceed to Payment </button>
+            {canProceed && (
+            <button
+            onClick={goToPayment}
+            style={{ width: '50%', padding: '0.75rem', backgroundColor: '#c0392b', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold', justifyContent: 'center', alignItems: 'center', cursor: 'pointer', marginTop: '1rem' }}
+          > Proceed to Payment </button>
+            )}
         </div>
         </div>
       </div>
