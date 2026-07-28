@@ -199,7 +199,6 @@ return (
         {cardData.length < 3 && !isAddCard &&(
           <button onClick= {() => setAddCard(true)} style={{type:'button', padding: '0.4rem', backgroundColor: 'transparent', color: '#59ff6f', outline: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold'}}>Add New Card...</button>
         )}
-
         {isAddCard && (
           <div>
             <button onClick= {() => handleCardSubmit()} style={{type:'button', padding: '0.4rem', backgroundColor: 'transparent', color: '#5972ff', outline: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold'}}>Submit</button>

@@ -21,7 +21,7 @@ export default function Page({ params }) {
   const [emailForm, setEmailForm] = useState({
     email: ''
   })
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [emailLoading, setEmailLoading] = useState(false)
   const [error, setError] = useState('')
   const [email, setEmail] = useState('')
