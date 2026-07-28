@@ -8,6 +8,7 @@ export default function Page({ params }) {
   const router = useRouter()
   const movie = searchParams.get('movie')
   const time = searchParams.get('time')
+  const date = searchParams.get('date')
   const showtimeId = searchParams.get('showtimeId')
   const seats = searchParams.get('seats') ? searchParams.get('seats').split(',') : []
   const adult = parseInt(searchParams.get('adult')) || 0
@@ -15,7 +16,14 @@ export default function Page({ params }) {
   const senior = parseInt(searchParams.get('senior')) || 0
   const total = searchParams.get('total') ? parseFloat(searchParams.get('total')) : 0.00
 
-  const query = new URLSearchParams({ total }).toString()
+  const query = new URLSearchParams({
+    showtimeId : showtimeId,
+    total : total.toFixed(2),
+    seats : seats.join(','),
+    adult : adult,
+    child : child,
+    senior : senior,
+    }).toString()
 
   const goToPayment = async () => {
     const authRes = await fetch('/api/user/profile')
@@ -33,7 +41,7 @@ export default function Page({ params }) {
       <div style={{ fontFamily: 'sans-serif', fontSize: '1rem',maxWidth: '750px',  margin: '0 auto', padding:'1rem', backgroundColor: '#232323', borderRadius: '12px', border: '1px solid #5a0000', color: '#ffffff' }}>
         <div style={{ display: 'flex', flexDirection: 'column'}}>
           <h1 style = {{fontSize: '1.5rem', fontWeight:'bold'}}>{movie}</h1>
-          <span style = {{color: '#b9b9b9'}}>{time}</span>
+          <span style = {{color: '#b9b9b9'}}>{date} {time}</span>
           <p style ={{fontSize: '1.25rem'}}><strong>Seats: </strong>{seats.join(', ')}</p>
           <p style ={{fontSize: '1.25rem'}}><strong>Tickets: </strong>{adult + child + senior}</p>
           <p>{adult} Adult</p>

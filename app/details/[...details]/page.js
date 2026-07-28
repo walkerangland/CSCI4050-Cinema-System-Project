@@ -18,6 +18,8 @@ export default async function Page({ params }) {
         orderBy: { startTime: 'asc' },
         include: { hall: true }
     })
+    const dates = new Set(showtimes.map(st => st.startTime.toLocaleDateString()))
+    console.log('dates:', dates)
 
     return (
         <div style={{color: '#ffffff'}}>
@@ -55,21 +57,39 @@ export default async function Page({ params }) {
                             {showtimes.length > 0 ? (
                                 showtimes.map((st) => {
                                     const timeString = st.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                                    const dateText = st.startTime.toLocaleDateString([], { month: 'short', day: 'numeric' })
+                                    const dateNumeric = st.startTime.toLocaleDateString()
+                                    let newDate = false
+                                    console.log('date:', dateNumeric)
+                                    if (dates.has(dateNumeric)) {
+                                        dates.delete(dateNumeric)
+                                        newDate = true
+                                    }
                                     return (
-                                        <Link
-                                            key={st.id}
-                                            href={`/book?movie=${encodeURIComponent(movie.title)}&showtimeId=${st.id}&time=${encodeURIComponent(timeString)}`}
-                                            style={{
-                                                padding: '0.3rem 0.75rem',
-                                                backgroundColor: '#1a1a2e',
-                                                color: 'white',
-                                                borderRadius: '6px',
-                                                fontSize: '0.8rem',
-                                                textDecoration: 'none',
-                                            }}
-                                        >
-                                            {timeString} ({st.hall.name})
-                                        </Link>
+                                        <div key={st.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}> 
+                                        {newDate &&
+                                            <div>
+                                                 <span style={{ fontSize: '0.875rem', color: '#aaaaaa', paddingBottom: '0.25rem' }}>{dateText}</span>
+                                            </div>
+                                        }
+                                        {!newDate &&
+                                            <div style={{ height: '1rem' }}></div>
+                                        }
+                                            <Link
+                                                key={st.id}
+                                                href={`/book?movie=${encodeURIComponent(movie.title)}&showtimeId=${st.id}&time=${encodeURIComponent(timeString)}&date=${encodeURIComponent(dateNumeric)}`}
+                                                style={{
+                                                    padding: '0.3rem 0.75rem',
+                                                    backgroundColor: '#1a1a2e',
+                                                    color: 'white',
+                                                    borderRadius: '6px',
+                                                    fontSize: '0.8rem',
+                                                    textDecoration: 'none',
+                                                }}
+                                            >
+                                                {timeString} ({st.hall.name})
+                                            </Link>
+                                        </div>
                                     )
                                 })
                             ) : (
