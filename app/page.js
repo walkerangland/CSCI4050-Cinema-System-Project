@@ -1,10 +1,22 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import styles from './home.module.css'
-import { GetMovie as fetchMovie } from '../lib/movies'
 import FavoriteButton from './favoriteButton'
- 
-export default function Page() {
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
+
+export default async function Page() {
+  const nowPlayingMovies = await prisma.movie.findMany({
+    where: { status: 'CURRENTLY_RUNNING' },
+    take: 5
+  })
+
+  const comingSoonMovies = await prisma.movie.findMany({
+    where: { status: 'COMING_SOON' },
+    take: 5
+  })
+
   return (
     <div className={styles.container}>
       <div className={styles.hero}>
@@ -13,55 +25,53 @@ export default function Page() {
       </div>
 
       <h2 className={styles.sectionTitle}>Now Playing</h2>
-      <GetMovies type="now-playing" />
+      <MovieGrid movies={nowPlayingMovies} />
 
       <h2 className={styles.sectionTitle}>Coming Soon</h2>
-      <GetMovies type="coming-soon" />
+      <MovieGrid movies={comingSoonMovies} />
     </div>
   );
 }
 
-//Gets the first 5 movies listed in the database of param type and displays them
-function GetMovies({ type }) {
-  const movies = [
-    fetchMovie(type, 0),
-    fetchMovie(type, 1),
-    fetchMovie(type, 2),
-    fetchMovie(type, 3),
-    fetchMovie(type, 4),
-  ]
+function MovieGrid({ movies }) {
+  if (!movies || movies.length === 0) {
+    return <p style={{ color: '#aaaaaa', textAlign: 'center', padding: '2rem' }}>No movies available.</p>
+  }
+
   return (
     <div className={styles.cards}>
-      {movies.map((movie) => (
-        <div key={movie.id ?? movie.posterUrl} className={styles.card}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <h3 className={styles.cardTitle}>{movie.title}</h3>
-            <FavoriteButton movieId={movie.id} />
-          </div>
-          <span className={styles.ratingPill}>{movie.rating}</span>
+      {movies.map((movie) => {
+        const urlStatus = movie.status === 'CURRENTLY_RUNNING' ? 'now-playing' : 'coming-soon'
 
-          <div style={{ width: '100%', marginTop: '0.5rem' }}>
-            <Link href={`details/${movie.status}/${movie.id}`}>
-              <Image
-                src={movie.posterUrl}
-                alt={movie.title + ' poster'}
-                width={220}
-                height={330}
-                sizes="(max-width: 600px) 180px, 220px"
-                className={styles.poster}
-              />
-            </Link>
+        return (
+          <div key={movie.id} className={styles.card}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <h3 className={styles.cardTitle}>{movie.title}</h3>
+              <FavoriteButton movieId={movie.id} />
+            </div>
+            <span className={styles.ratingPill}>{movie.rating}</span>
+            
+            <div style={{ width: '100%', marginTop: '0.5rem' }}>
+              <Link href={`details/${urlStatus}/${movie.id}`}>
+                <Image
+                  src={movie.posterUrl}
+                  alt={movie.title + ' poster'}
+                  width={220}
+                  height={330}
+                  sizes="(max-width: 600px) 180px, 220px"
+                  className={styles.poster}
+                />
+              </Link>
+            </div>
+            
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <Link className={styles.bookBtn} href={`details/${urlStatus}/${movie.id}`}>
+                Book Now
+              </Link>
+            </div>
           </div>
-
-          <div className={styles.gallery}>
-            <img src={movie.posterUrl} alt={`${movie.title} photo`} className={styles.thumbnail} />
-          </div>
-
-          <Link className={styles.bookBtn} href={`details/${movie.status}/${movie.id}`}>
-            Book Now
-          </Link>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }

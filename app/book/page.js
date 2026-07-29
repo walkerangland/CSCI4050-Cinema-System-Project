@@ -3,12 +3,6 @@
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 
-const TICKET_TYPES = [
-  { type: 'Adult', price: 12.00 },
-  { type: 'Child', price: 8.00},
-  { type: 'Senior', price: 10.00}
-]
-
 const ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
 const COLS = 8
 
@@ -20,16 +14,42 @@ export default function BookingPage() {
   const time = params.get('time') || 'Unknown Time'
   const date = params.get('date') || 'Unknown Date'
   const showtimeId = params.get('showtimeId')
-
+  
   const [quantities, setQuantities] = useState({ Adult: 0, Child: 0, Senior: 0 })
   const [selectedSeats, setSelectedSeats] = useState([])
   const [takenSeats, setTakenSeats] = useState([])
+  
+  const [ticketTypes, setTicketTypes] = useState([])
+  const [loadingPrices, setLoadingPrices] = useState(true)
   const [loadingSeats, setLoadingSeats] = useState(true)
-
+  
   const totalTickets = quantities.Adult + quantities.Child + quantities.Senior
-  const total = TICKET_TYPES.reduce((sum, t) => sum + t.price * quantities[t.type], 0)
+  const total = ticketTypes.reduce((sum, t) => sum + t.price * (quantities[t.type] || 0), 0)
 
-  // Fetch real-time booked seats for this showtime
+  // Fetch ticket prices from the database
+  useEffect(() => {
+    fetch('/api/admin/pricing')
+      .then(res => res.json())
+      .then(data => {
+        if (data.ticketPrices) {
+          const formattedPrices = data.ticketPrices.map(t => ({
+            type: t.category.charAt(0) + t.category.slice(1).toLowerCase(),
+            price: parseFloat(t.price)
+          }))
+          
+          const order = ['Adult', 'Child', 'Senior']
+          formattedPrices.sort((a, b) => order.indexOf(a.type) - order.indexOf(b.type))
+          
+          setTicketTypes(formattedPrices)
+        }
+        setLoadingPrices(false)
+      })
+      .catch(err => {
+        console.error("Failed to fetch prices:", err)
+        setLoadingPrices(false)
+      })
+  }, [])
+
   useEffect(() => {
     if (showtimeId) {
       fetch(`/api/showtimes/${showtimeId}/seats`)
@@ -63,7 +83,6 @@ export default function BookingPage() {
 
   const toggleSeat = (seat) => {
     if (takenSeats.includes(seat)) return
-
     if (selectedSeats.includes(seat)) {
       setSelectedSeats(prev => prev.filter(s => s !== seat))
     } else {
@@ -90,7 +109,7 @@ export default function BookingPage() {
       alert(`Please select exactly ${totalTickets} seats to match your ticket quantity.`)
       return
     }
-
+    
     // Verify authentication before allowing checkout
     const authRes = await fetch('/api/user/profile')
     if (!authRes.ok) {
@@ -98,7 +117,7 @@ export default function BookingPage() {
       router.push('/login')
       return
     }
-
+    
     // Route to the Order Summary page passing data as query parameters
     const query = new URLSearchParams({
       movie,
@@ -111,30 +130,34 @@ export default function BookingPage() {
       senior: quantities.Senior,
       total: total.toFixed(2)
     }).toString()
-
+    
     router.push(`/checkout/summary?${query}`)
   }
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem', fontFamily: 'sans-serif', backgroundColor: '#0d0d0d', color: '#ffffff'}}>
-      {/* Header */} 
-      <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>{movie}</h1> 
+      {/* Header */}
+      <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>{movie}</h1>
       <p style={{ color: '#aaaaaa', marginBottom: '2rem' }}>Showtime: {date} {time}</p>
       
       {/* Ticket Selector */}
       <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem' }}>Select Tickets</h2>
       <div style={{ marginBottom: '2rem' }}>
-        {TICKET_TYPES.map(({ type, price }) => (
-          <div key={type} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', border: '1px solid #5a0000', borderRadius: '8px', marginBottom: '0.5rem' }}>
-            <span style={{ fontWeight: '500' }}>{type}</span>
-            <span style={{ color: '#aaaaaa' }}>${price.toFixed(2)}</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <button onClick={() => updateQty(type, -1)} style={{ width: '2rem', height: '2rem', borderRadius: '50%', border: '1px solid #d1d5db', cursor: 'pointer', fontSize: '1rem' }}>-</button>
-              <span style={{ minWidth: '1rem', textAlign: 'center' }}>{quantities[type]}</span>
-              <button onClick={() => updateQty(type, +1)} style={{ width: '2rem', height: '2rem', borderRadius: '50%', border: '1px solid #d1d5db', cursor: 'pointer', fontSize: '1rem' }}>+</button>
+        {loadingPrices ? (
+           <p style={{ color: '#aaaaaa' }}>Loading ticket prices...</p>
+        ) : (
+          ticketTypes.map(({ type, price }) => (
+            <div key={type} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', border: '1px solid #5a0000', borderRadius: '8px', marginBottom: '0.5rem' }}>
+              <span style={{ fontWeight: '500' }}>{type}</span>
+              <span style={{ color: '#aaaaaa' }}>${price.toFixed(2)}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <button onClick={() => updateQty(type, -1)} style={{ width: '2rem', height: '2rem', borderRadius: '50%', border: '1px solid #d1d5db', cursor: 'pointer', fontSize: '1rem' }}>-</button>
+                <span style={{ minWidth: '1rem', textAlign: 'center' }}>{quantities[type]}</span>
+                <button onClick={() => updateQty(type, +1)} style={{ width: '2rem', height: '2rem', borderRadius: '50%', border: '1px solid #d1d5db', cursor: 'pointer', fontSize: '1rem' }}>+</button>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
         <p style={{ textAlign: 'right', fontWeight: 'bold', marginTop: '0.5rem' }}>Total: ${total.toFixed(2)}</p>
       </div>
 

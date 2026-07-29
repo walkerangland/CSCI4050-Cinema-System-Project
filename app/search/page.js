@@ -10,11 +10,20 @@ export default function SearchPage() {
   const [movies, setMovies] = useState([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetch('/api/movies')
-      .then(r => r.json())
+useEffect(() => {
+    fetch('/api/admin/movies')
+      .then(r => {
+        if (!r.ok) throw new Error('Network response was not ok');
+        return r.json();
+      })
       .then(data => {
         setMovies(data.movies || [])
+      })
+      .catch(error => {
+        console.error("Failed to fetch movies:", error)
+        setMovies([])
+      })
+      .finally(() => {
         setLoading(false)
       })
   }, [])

@@ -127,7 +127,14 @@ export default function ProfilePage() {
   if (!userData) return <div style={{ color: '#fff', textAlign: 'center', marginTop: '4rem' }}>Please log in.</div>
 return (
   <div style={{ maxWidth: '900px', margin: '0 auto', padding: '2rem', backgroundColor: '#0d0d0d', color: '#ffffff' }}>
-    <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', textAlign: 'center' }}>Personal Information</h1>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+      <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', textAlign: 'center' }}>Personal Information</h1>
+      {userData.role === 'ADMIN' && (
+        <Link href="/admin" style={{ backgroundColor: '#c0392b', color: '#ffffff', padding: '0.75rem 1rem', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold' }}>
+          Admin Dashboard
+        </Link>
+      )}
+    </div>
       <div style={{ fontFamily: 'sans-serif', fontSize: '1rem',maxWidth: '750px',  margin: '0 auto', padding:'0.5rem', backgroundColor: '#232323', borderRadius: '12px', border: '1px solid #5a0000', color: '#ffffff' }}>
         {!isEditing && (
         <button onClick= {() => setEditing(true)} style={{type:'button', padding: '0.4rem', backgroundColor: 'transparent', color: '#5972ff', outline: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold'}}>Edit...</button>
@@ -196,8 +203,9 @@ return (
       {/* --- Credit Cards section --- */}
       <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', marginTop: '1.5rem', textAlign: 'center' }}>Credit Cards</h1>
       <div style={{ fontFamily: 'sans-serif', fontSize: '1rem', maxWidth: '750px', margin: '0 auto', padding: '0.5rem', backgroundColor: '#232323', borderRadius: '12px', border: '1px solid #5a0000', color: '#ffffff' }}>
-        {cardData.length < 3 && !isAddCard &&(
-          <button onClick= {() => setAddCard(true)} style={{type:'button', padding: '0.4rem', backgroundColor: 'transparent', color: '#59ff6f', outline: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold'}}>Add New Card...</button>
+        // Using optional chaining (cleanest approach):
+        {cardData?.length < 3 && !isAddCard &&(
+          <button onClick={() => setAddCard(true)} style={{type:'button', padding: '0.4rem', backgroundColor: 'transparent', color: '#59ff6f', outline: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold'}}>Add New Card...</button>
         )}
         {isAddCard && (
           <div>
