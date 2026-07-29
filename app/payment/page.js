@@ -11,6 +11,10 @@ export default function Page({ params }) {
   const [cardForm, setCardForm] = useState({
     cardNumber: '', expirationMonth: '', expirationYear: '', cardholderName: ''
   })
+  const [selectCardForm, setSelectCardForm] = useState({
+    cardId: '', cvv: ''
+  })
+  const [cardSelected, setCardSelected] = useState(false)
   
   const total = parseFloat(searchParams.get('total'))
 
@@ -46,24 +50,38 @@ export default function Page({ params }) {
       return
     }
     alert('Card updated!')
+    router.push(`/payment?${searchParams}`)
+    window.location.reload()
   }
 
-  const submitPayment = async () => {
-
+  const submitPayment = async (e) => {
+    e.preventDefault()
+    setError('')
+    alert('submitted')
+    router.push('/payment-confirmation')
   }
+
+const handleChange = (e) => {
+  setSelectCardForm({ ...selectCardForm, [e.target.name]: e.target.value })
+  console.log(selectCardForm)
+  setCardSelected(true)
+}
+
 
   if (loading) return <div style={{ color: '#fff', textAlign: 'center', marginTop: '4rem' }}>Loading...</div>
   return (
   <div style={{ maxWidth: '900px', margin: '0 auto', padding: '1rem', gap:'2rem', backgroundColor: '#0d0d0d', color: '#ffffff' }}>
-    <form onSubmit={submitPayment}>
+    <p>{selectCardForm.cardId}</p>
+    <form onSubmit={submitPayment} id='selectCardForm'></form>
     <h1 style={{ fontSize: '2.0rem', fontWeight: 'bold', marginBottom: '1 rem', textAlign: 'center' }}>Secure Checkout</h1>
       <div style={{ fontFamily: 'sans-serif', fontSize: '1rem',maxWidth: '750px',  margin: '0 auto', marginBottom:'2rem', padding:'1rem', backgroundColor: '#232323', borderRadius: '12px', border: '1px solid #5a0000', color: '#ffffff' }}>
         <h1 style={{fontSize:'1.25rem'}}>Select a credit card to use:</h1>
         <div style ={{display:'flex', flexDirection:'column', gap:'1rem'}}>
+        
         {cardData && cardData.length > 0 ? (
           cardData.map((card, index) => (
         <div key={card.id} style={{display:'flex', gap:'0.5rem'}}>
-          <input type='radio' id={card.id} name="drone" style={{gap:'0.5rem'}}></input>
+          <input type='radio' form='selectCardForm' name='cardId' value={card.id} onChange={handleChange} id={card.id} style={{gap:'0.5rem'}}></input>
           <div style = {{borderRadius: '12px', marginLeft:'0.5rem',border: '1px solid #b6b6b6', backgroundColor:'#1b1b1b', color: '#ffffff'}}>  
               <div key={card.id} style={{ padding: '0.5rem', display:'flex', gap:'0.5rem' }}>
                 <details>
@@ -76,6 +94,7 @@ export default function Page({ params }) {
             ))
 
           )  : (
+            
           <div>
               {!isAddCard &&(
               <button onClick= {() => setAddCard(true)} style={{type:'button', padding: '0.4rem', backgroundColor: 'transparent', color: '#59ff6f', outline: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold'}}>Add New Card...</button>
@@ -124,13 +143,30 @@ export default function Page({ params }) {
           <span style={{ color: '#c4c4c4'  }}>Promo discount:</span>
           <span style={{ color: '#c4c4c4', float:'right' }}>- ${(total * promoDiscount).toFixed(2)}</span>
         </div>
-        <div style = {{marginBottom: '0.5rem'}}>
+        <div style = {{marginBottom: '2rem', borderBottom:'2px solid #d4d4d4'}}>
           <span style={{ color: '#ffffff', fontSize:'20px'  }}>Final Price:</span>
-          <span style={{ color: '#ffffff', float:'right', fontSize:'20px' }}>${(finalCost)}</span>
+          <span style={{ color: '#ffffff', float:'right', fontSize:'20px', fontWeight:'bold' }}>${(finalCost)}</span>
         </div>
+        {cardSelected && (
+        <div style = {{marginBottom: '0.5rem'}}>
+          <p>Input card cvv:</p>
+          <input type = 'number' max='9999' name='cvv' form='selectCardForm' value={selectCardForm.cvv} onChange={handleChange} required></input>
+        </div>
+        )}
       </div>
+      
+      <div>
+        {cardSelected && selectCardForm.cvv != '' && (
+        <button
+          type = 'submit' 
+          form = 'selectCardForm'
+          style={{ width: '50%', padding: '0.75rem', backgroundColor: '#c0392b', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold', justifyContent: 'center', alignItems: 'center', cursor: 'pointer', marginTop: '1rem' }}
+          >Submit Payment</button>
+          )}
+        </div>
+      
     </div>
-    </form>
+
   </div>
   )
 }
