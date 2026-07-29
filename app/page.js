@@ -53,13 +53,11 @@ function GetMovies({ type }) {
             </Link>
           </div>
 
-          <div className={styles.gallery}>
-            <img src={movie.posterUrl} alt={`${movie.title} photo`} className={styles.thumbnail} />
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <Link className={styles.bookBtn} href={`details/${movie.status}/${movie.id}`}>
+              Book Now
+            </Link>
           </div>
-
-          <Link className={styles.bookBtn} href={`details/${movie.status}/${movie.id}`}>
-            Book Now
-          </Link>
         </div>
       ))}
     </div>
