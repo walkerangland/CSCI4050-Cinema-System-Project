@@ -30,6 +30,7 @@ export async function GET(req) {
         firstName: true,
         lastName: true,
         phoneNumber: true,
+        role: true,
         favorites: true,
         address: true,
         paymentCards: {    

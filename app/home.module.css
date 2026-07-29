@@ -133,24 +133,9 @@
     display:block;
 }
 
-.gallery {
-    display:flex;
-    gap:0.5rem;
-    margin-top:0.5rem;
-    justify-content:center;
-}
-
-.thumbnail {
-    width:56px;
-    height:84px;
-    object-fit:cover;
-    border-radius:6px;
-    border:1px solid rgba(255,255,255,0.04);
-}
-
 .bookBtn {
     display:inline-block;
-    margin-top: 0.6rem;
+    margin: 0.6rem auto 0 auto;
     background: linear-gradient(180deg,#7a2c1f,#3d0b06);
     color: #fff;
     padding: 0.45rem 0.8rem;
