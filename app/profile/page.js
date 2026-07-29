@@ -203,8 +203,9 @@ return (
       {/* --- Credit Cards section --- */}
       <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', marginTop: '1.5rem', textAlign: 'center' }}>Credit Cards</h1>
       <div style={{ fontFamily: 'sans-serif', fontSize: '1rem', maxWidth: '750px', margin: '0 auto', padding: '0.5rem', backgroundColor: '#232323', borderRadius: '12px', border: '1px solid #5a0000', color: '#ffffff' }}>
-        {cardData.length < 3 && !isAddCard &&(
-          <button onClick= {() => setAddCard(true)} style={{type:'button', padding: '0.4rem', backgroundColor: 'transparent', color: '#59ff6f', outline: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold'}}>Add New Card...</button>
+        // Using optional chaining (cleanest approach):
+        {cardData?.length < 3 && !isAddCard &&(
+          <button onClick={() => setAddCard(true)} style={{type:'button', padding: '0.4rem', backgroundColor: 'transparent', color: '#59ff6f', outline: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold'}}>Add New Card...</button>
         )}
         {isAddCard && (
           <div>

@@ -39,6 +39,13 @@ export default function AdminPage() {
            </div>
          </Link>
 
+         <Link href="/admin/pricing" style={{ textDecoration: 'none' }}>
+            <div style={{ backgroundColor: '#1c1c1c', border: '1px solid #5a0000', borderRadius: '12px', padding: '2rem', textAlign: 'center', cursor: 'pointer' }}>
+              <h3 style={{ color: '#ffffff', fontSize: '1.25rem', marginBottom: '0.5rem' }}>Manage Pricing</h3>
+              <p style={{ color: '#aaaaaa', fontSize: '0.875rem' }}>Update ticket prices and booking fees</p>
+            </div>
+          </Link>
+
           <div style={{ backgroundColor: '#1c1c1c', border: '1px solid #5a0000', borderRadius: '12px', padding: '2rem', textAlign: 'center', cursor: 'pointer' }}>
             <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}></div>
             <h3 style={{ color: '#ffffff', fontSize: '1.25rem', marginBottom: '0.5rem' }}>Promotions</h3>

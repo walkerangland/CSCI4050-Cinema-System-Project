@@ -208,3 +208,11 @@ enum BookingStatus {
   CONFIRMED
   CANCELLED
 }
+
+model Fee {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  amount    Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
