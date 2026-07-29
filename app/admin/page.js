@@ -45,17 +45,19 @@ export default function AdminPage() {
             <p style={{ color: '#aaaaaa', fontSize: '0.875rem' }}>Manage discounts and promo codes</p>
           </div>
 
-          <div style={{ backgroundColor: '#1c1c1c', border: '1px solid #5a0000', borderRadius: '12px', padding: '2rem', textAlign: 'center', cursor: 'pointer' }}>
-            <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}></div>
-            <h3 style={{ color: '#ffffff', fontSize: '1.25rem', marginBottom: '0.5rem' }}>Users</h3>
-            <p style={{ color: '#aaaaaa', fontSize: '0.875rem' }}>View and manage user accounts</p>
-          </div>
-
-          <Link href="/admin/showtimes" style={{ textDecoration: 'none' }}>
+          <Link href="/admin/users" style={{ textDecoration: 'none' }}>
             <div style={{ backgroundColor: '#1c1c1c', border: '1px solid #5a0000', borderRadius: '12px', padding: '2rem', textAlign: 'center', cursor: 'pointer' }}>
-              <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}> </div>
-              <h3 style={{ color: '#ffffff', fontSize: '1.25rem', marginBottom: '0.5rem' }}>Showtimes</h3>
-              <p style={{ color: '#aaaaaa', fontSize: '0.875rem' }}>Schedule and manage showtimes</p>
+              <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}></div>
+              <h3 style={{ color: '#ffffff', fontSize: '1.25rem', marginBottom: '0.5rem' }}>Users</h3>
+              <p style={{ color: '#aaaaaa', fontSize: '0.875rem' }}>View and manage user accounts</p>
+            </div>
+          </Link>
+
+          <Link href="/admin/stats" style={{ textDecoration: 'none' }}>
+            <div style={{ backgroundColor: '#1c1c1c', border: '1px solid #5a0000', borderRadius: '12px', padding: '2rem', textAlign: 'center', cursor: 'pointer' }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}></div>
+              <h3 style={{ color: '#ffffff', fontSize: '1.25rem', marginBottom: '0.5rem' }}>Statistics</h3>
+              <p style={{ color: '#aaaaaa', fontSize: '0.875rem' }}>View real-time booking and sales stats</p>
             </div>
           </Link>
 
