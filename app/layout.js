@@ -34,7 +34,24 @@ export default function RootLayout({ children }) {
     setIsLoggedIn(false)
     router.push('/login')
   }
-
+  const handleCartClick = async () => {
+    try {
+      const res = await fetch('/api/book', { method: 'GET' })
+      if (res.ok) {
+        const bookings = await res.json()
+        
+        const pendingOrder = bookings.find(b => b.status === 'PENDING')
+        
+        if (pendingOrder) {
+          router.push(`/payment?total=${pendingOrder.totalprice}&bookId=${pendingOrder.id}&showtimeId=${pendingOrder.showtimeId}`)
+        } else {
+          alert('Your cart is empty. You have no pending bookings.')
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch cart data', error)
+    }
+  }
   return (
     <html lang="en" className={newsreader.className}>
       <body className={styles.appRoot}>
@@ -45,6 +62,17 @@ export default function RootLayout({ children }) {
           <nav className={styles.nav}>
             <Link href="/search" className={styles.navLink}>Search</Link>
             <Link href="/book" className={styles.navLink}>Book</Link>
+
+            {!loading && isLoggedIn && (
+              <button 
+                onClick={handleCartClick} 
+                className={styles.navLink}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '1rem' }}
+              >
+                Cart
+              </button>
+            )}
+            
             {!loading && !isLoggedIn && (
               <>
                 <Link href="/login" className={styles.navLink} style={{ border: '2px solid #c0392b' }}>Login</Link>
