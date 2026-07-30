@@ -58,7 +58,21 @@ export default function Page({ params }) {
   const submitPayment = async (e) => {
     e.preventDefault()
     setSubmitLoading(true)
-    alert('Payment Submitted')
+    const res = await fetch('/api/book' , {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        bookId : searchParams.get('bookId'),
+        status : "CONFIRMED"
+      })
+    })
+    const data = await res.json()
+    if (!res.ok) {
+      alert('There was an error booking: ' + data.message)
+      setSubmitLoading(false)
+      return
+    }
+    alert(data.message)
     setSubmitLoading(false)
     router.push('/payment-confirmation')
   }
@@ -146,7 +160,7 @@ export default function Page({ params }) {
         </div>
         <div style = {{marginBottom: '2rem', borderBottom:'2px solid #d4d4d4'}}>
           <span style={{ color: '#ffffff', fontSize:'20px'  }}>Final Price:</span>
-          <span style={{ color: '#ffffff', float:'right', fontSize:'20px', fontWeight:'bold' }}>${(finalCost)}</span>
+          <span style={{ color: '#ffffff', float:'right', fontSize:'20px', fontWeight:'bold' }}>${(finalCost).toFixed(2)}</span>
         </div>
         {cardSelected && (
         <div style = {{marginBottom: '0.5rem'}}>

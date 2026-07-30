@@ -149,7 +149,8 @@ export default function BookingPage() {
       adult: quantities.Adult,
       child: quantities.Child,
       senior: quantities.Senior,
-      total: total.toFixed(2)
+      total: total.toFixed(2),
+      bookId: data.bookingId
     }).toString()
     
     router.push(`/checkout/summary?${query}`)

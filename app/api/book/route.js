@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client'
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import jwt from 'jsonwebtoken'
+import { fetchSegmentPrefetchesUsingDynamicRequest } from 'next/dist/client/components/segment-cache/cache'
 
 const prisma = new PrismaClient()
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
@@ -69,7 +70,21 @@ export async function POST(req) {
 
     const decoded = jwt.verify(token, JWT_SECRET)
     const userId = decoded.userId
-    const { showtimeId, totalPrice, status, seatIds, quantities, ticketTypes, hallId } = await req.json()
+    const { showtimeId, totalPrice, status, seatIds, quantities, ticketTypes, hallId, bookId } = await req.json()
+
+    // For payment page, only changes the status
+    if (status != null) {
+      const booking = await prisma.booking.update({
+        where: { id : parseInt(bookId) },
+        data: {
+          status: status
+        }
+      })
+      return NextResponse.json(
+        { message: 'Payment confirmed!' },
+        { status: 200 }
+      )
+    }
 
     // Validation
     if (!showtimeId || !totalPrice) {
@@ -177,7 +192,6 @@ export async function POST(req) {
     )
 
   const bookingId = booking.id;
-  console.log('booking id:' + bookingId)
 
 await Promise.all(
   seats.map((seatId, index) => {
@@ -204,10 +218,7 @@ await Promise.all(
   })
 );
 
-    return NextResponse.json(
-      { message: 'Booking successfully created/updated.' , book: booking },
-      { status: 201 }
-    )
+    return NextResponse.json({ ok: true, bookingId }, { status: 201 })
   } catch (error) {
     console.error('Add/create booking:', error)
     return NextResponse.json(
