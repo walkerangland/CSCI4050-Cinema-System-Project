@@ -1,112 +1,142 @@
 'use client'
-import { useState, useEffect } from 'react'
+
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
-export default function ManageShowtimesPage() {
+const emptyForm = {
+  movieId: '',
+  hallId: '',
+  startTime: ''
+}
+
+export default function AdminShowtimesPage() {
+  const [showtimes, setShowtimes] = useState([])
   const [movies, setMovies] = useState([])
   const [halls, setHalls] = useState([])
-  const [loading, setLoading] = useState(false)
+  const [form, setForm] = useState(emptyForm)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(true)
 
-  const [form, setForm] = useState({
-    movieId: '',
-    hallId: '',
-    startTime: '',
-  })
+  const loadShowtimes = async () => {
+    setLoading(true)
+    const response = await fetch('/api/admin/showtimes')
+    const data = await response.json()
 
-  useEffect(() => {
-    fetch('/api/admin/movies').then(r => r.json()).then(d => setMovies(d.movies || []))
-    fetch('/api/admin/halls').then(r => r.json()).then(d => setHalls(d.halls || []))
-  }, [])
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
+    setShowtimes(data.showtimes || [])
+    setMovies(data.movies || [])
+    setHalls(data.halls || [])
+    setLoading(false)
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+  useEffect(() => {
+    loadShowtimes()
+  }, [])
 
-    const res = await fetch('/api/admin/showtimes', {
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    setError('')
+    setSuccess(false)
+
+    const response = await fetch('/api/admin/showtimes', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        movieId: parseInt(form.movieId),
-        hallId: parseInt(form.hallId),
-        startTime: new Date(form.startTime).toISOString(),
-      }),
+      body: JSON.stringify(form)
     })
 
-    const data = await res.json()
-    setLoading(false)
+    const data = await response.json()
 
-    if (!res.ok) {
-      setError(data.message)
+    if (!response.ok) {
+      setError(data.message || 'Failed to schedule showtime.')
       return
     }
 
     setSuccess(true)
-    setForm({ movieId: '', hallId: '', startTime: '' })
+    setForm(emptyForm)
     setTimeout(() => setSuccess(false), 3000)
+    await loadShowtimes()
   }
 
-  const inputStyle = { width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #5a0000', backgroundColor: '#0d0d0d', color: '#ffffff', fontSize: '1rem', boxSizing: 'border-box' }
-  const labelStyle = { display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', color: '#aaaaaa' }
-
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#0d0d0d', color: '#ffffff', fontFamily: 'sans-serif' }}>
-      <div style={{ backgroundColor: '#1c1c1c', borderBottom: '1px solid #5a0000', padding: '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{ color: '#c0392b', fontSize: '1.5rem', fontWeight: 'bold' }}>Schedule Showtime</h1>
-        <Link href="/admin" style={{ color: '#f5c518', textDecoration: 'none' }}>← Back to Admin</Link>
+    <div style={{ minHeight: '100vh', backgroundColor: '#0d0d0d', color: '#ffffff', fontFamily: 'sans-serif', padding: '2rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <div>
+          <h1 style={{ color: '#c0392b', marginBottom: '0.25rem' }}>Manage Showtimes</h1>
+          <p style={{ color: '#aaaaaa' }}>Schedule movie showtimes for each hall.</p>
+        </div>
+        <Link href="/admin" style={{ color: '#c0392b', textDecoration: 'none', fontWeight: 'bold' }}>← Back to dashboard</Link>
       </div>
 
-      <div style={{ maxWidth: '600px', margin: '2rem auto', padding: '2rem', backgroundColor: '#1c1c1c', borderRadius: '12px', border: '1px solid #5a0000' }}>
+      {success && (
+        <div style={{ backgroundColor: '#052e16', border: '1px solid #22c55e', borderRadius: '8px', padding: '0.75rem', marginBottom: '1rem', color: '#22c55e' }}>
+          ✓ Showtime scheduled successfully!
+        </div>
+      )}
 
-        {success && (
-          <div style={{ backgroundColor: '#052e16', border: '1px solid #22c55e', borderRadius: '8px', padding: '0.75rem', marginBottom: '1rem', color: '#22c55e' }}>
-            ✓ Showtime scheduled successfully!
-          </div>
-        )}
+      {error && (
+        <div style={{ backgroundColor: '#3b0000', border: '1px solid #ef4444', borderRadius: '8px', padding: '0.75rem', marginBottom: '1rem', color: '#fca5a5' }}>
+          {error}
+        </div>
+      )}
 
-        {error && (
-          <div style={{ backgroundColor: '#3b0000', border: '1px solid #ef4444', borderRadius: '8px', padding: '0.75rem', marginBottom: '1rem', color: '#fca5a5' }}>
-            {error}
-          </div>
-        )}
+      <div style={{ display: 'grid', gap: '1.5rem', gridTemplateColumns: 'minmax(280px, 360px) 1fr' }}>
+        <form onSubmit={handleSubmit} style={{ backgroundColor: '#1c1c1c', border: '1px solid #5a0000', borderRadius: '12px', padding: '1.5rem' }}>
+          <h2 style={{ marginBottom: '1rem', color: '#ffffff' }}>Schedule a Showtime</h2>
 
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={labelStyle}>Movie <span style={{ color: '#ef4444' }}>*</span></label>
-            <select name="movieId" required value={form.movieId} onChange={handleChange} style={inputStyle}>
-              <option value="">Select a movie</option>
-              {movies.map(m => (
-                <option key={m.id} value={m.id}>{m.title}</option>
-              ))}
-            </select>
-          </div>
+          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#cccccc' }}>Movie</label>
+          <select value={form.movieId} onChange={(e) => setForm({ ...form, movieId: e.target.value })} style={inputStyle} required>
+            <option value="">Select a movie</option>
+            {movies.map((movie) => (
+              <option key={movie.id} value={movie.id}>{movie.title}</option>
+            ))}
+          </select>
 
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={labelStyle}>Showroom <span style={{ color: '#ef4444' }}>*</span></label>
-            <select name="hallId" required value={form.hallId} onChange={handleChange} style={inputStyle}>
-              <option value="">Select a showroom</option>
-              {halls.map(h => (
-                <option key={h.id} value={h.id}>{h.name} (Capacity: {h.capacity})</option>
-              ))}
-            </select>
-          </div>
+          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#cccccc' }}>Hall</label>
+          <select value={form.hallId} onChange={(e) => setForm({ ...form, hallId: e.target.value })} style={inputStyle} required>
+            <option value="">Select a hall</option>
+            {halls.map((hall) => (
+              <option key={hall.id} value={hall.id}>{hall.name} ({hall.capacity} seats)</option>
+            ))}
+          </select>
 
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label style={labelStyle}>Date & Time <span style={{ color: '#ef4444' }}>*</span></label>
-            <input type="datetime-local" name="startTime" required value={form.startTime} onChange={handleChange} style={inputStyle} />
-          </div>
+          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#cccccc' }}>Start time</label>
+          <input type="datetime-local" value={form.startTime} onChange={(e) => setForm({ ...form, startTime: e.target.value })} style={inputStyle} required />
 
-          <button type="submit" disabled={loading} style={{ width: '100%', padding: '0.75rem', backgroundColor: '#c0392b', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold', cursor: loading ? 'not-allowed' : 'pointer' }}>
-            {loading ? 'Scheduling...' : 'Schedule Showtime'}
+          <button type="submit" style={{ marginTop: '1rem', width: '100%', backgroundColor: '#c0392b', color: '#fff', border: 'none', padding: '0.7rem', borderRadius: '8px', cursor: 'pointer' }}>
+            Schedule showtime
           </button>
         </form>
+
+        <div style={{ backgroundColor: '#1c1c1c', border: '1px solid #5a0000', borderRadius: '12px', padding: '1.5rem' }}>
+          <h2 style={{ marginBottom: '1rem', color: '#ffffff' }}>Current Showtimes</h2>
+          {loading ? <p style={{ color: '#aaaaaa' }}>Loading showtimes...</p> : null}
+          {!loading && showtimes.length === 0 ? <p style={{ color: '#aaaaaa' }}>No showtimes scheduled yet.</p> : null}
+
+          <div style={{ display: 'grid', gap: '0.75rem' }}>
+            {showtimes.map((showtime) => (
+              <div key={showtime.id} style={{ border: '1px solid #333', borderRadius: '10px', padding: '0.9rem', backgroundColor: '#141414' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+                  <strong>{showtime.movie?.title || 'Unknown movie'}</strong>
+                  <span style={{ color: '#7ed957', fontSize: '0.85rem' }}>{showtime.hall?.name || 'Unknown hall'}</span>
+                </div>
+                <div style={{ color: '#aaaaaa', fontSize: '0.95rem' }}>
+                  {new Date(showtime.startTime).toLocaleString()}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )
+}
+
+const inputStyle = {
+  width: '100%',
+  padding: '0.7rem',
+  marginBottom: '0.8rem',
+  borderRadius: '8px',
+  border: '1px solid #444',
+  backgroundColor: '#111',
+  color: '#fff'
 }
