@@ -8,10 +8,13 @@ export default function Page({ params }) {
   const [cardData, setCardData] = useState('')
   const [loading, setLoading] = useState(true)
   const [submitLoading, setSubmitLoading] = useState(false)
+  const [feesLoading, setFeesLoading] = useState(true)
   const [isAddCard, setAddCard] = useState(false)
   const [cardForm, setCardForm] = useState({
     cardNumber: '', expirationMonth: '', expirationYear: '', cardholderName: ''
   })
+  const [finalCost, setFinalCost] = useState(0)
+  const [pricingData, setPricingData] = useState(null)
   const [selectCardForm, setSelectCardForm] = useState({
     cardId: '', cvv: ''
   })
@@ -20,10 +23,8 @@ export default function Page({ params }) {
   const total = parseFloat(searchParams.get('total'))
   const salesTax = 0.07
   const promoDiscount = 0.0
-  const tax = (total * salesTax).toFixed(2)
-  const promo = (total * promoDiscount).toFixed(2)
-
-  const finalCost = (total + (total * salesTax) - (total * promoDiscount)).toFixed(2)
+  const tax = (total * salesTax)
+  const promo = (total * promoDiscount)
 
   useEffect(() => {
     const fetchCardData = async () => { 
@@ -39,6 +40,22 @@ export default function Page({ params }) {
     }
     fetchCardData() 
     setLoading(false)
+  }, [])
+
+
+
+  useEffect(() => {
+    const fetchPricing = async () => {
+      const res = await fetch('/api/admin/pricing')
+      if (res.ok) {
+        const data = await res.json()
+        setPricingData(data)
+      }
+    }
+    fetchPricing()
+    setFeesLoading(false)
+    if (!pricingData) return
+    setFinalCost((parseFloat(pricingData.fees[0].amount) + total + (total*salesTax) + (total * promoDiscount)))
   }, [])
 
   const handleCardSubmit = async (e) => {
@@ -66,7 +83,7 @@ export default function Page({ params }) {
       body: JSON.stringify({
         bookId : searchParams.get('bookId'),
         status : "CONFIRMED",
-        totalPrice: finalCost,
+        totalPrice: (parseFloat(pricingData.fees[0].amount) + total + (total*salesTax) + (total * promoDiscount)).toFixed(2),
         showtimeId : searchParams.get('showtimeId')
       })
     })
@@ -86,8 +103,7 @@ export default function Page({ params }) {
     setCardSelected(true)
   }
 
-
-  if (loading) return <div style={{ color: '#fff', textAlign: 'center', marginTop: '4rem' }}>Loading...</div>
+  if (loading || feesLoading) return <div style={{ color: '#fff', textAlign: 'center', marginTop: '4rem' }}>Loading...</div>
   return (
   <div style={{ maxWidth: '900px', margin: '0 auto', padding: '1rem', gap:'2rem', backgroundColor: '#0d0d0d', color: '#ffffff' }}>
     <form onSubmit={submitPayment} id='selectCardForm'></form>
@@ -156,15 +172,28 @@ export default function Page({ params }) {
         </div>
         <div style = {{marginBottom: '0.5rem'}}>
           <span style={{ color: '#c4c4c4'  }}>Tax:</span>
-          <span style={{ color: '#c4c4c4', float:'right' }}>${tax}</span>
+          <span style={{ color: '#c4c4c4', float:'right' }}>${tax.toFixed(2)}</span>
+        </div>
+        <div style = {{marginBottom: '0.5rem'}}>
+          <span style={{ color: '#c4c4c4'  }}>Online booking fee:</span>
+          {pricingData ? (
+          <span style={{ color: '#c4c4c4', float:'right' }}>${parseFloat(pricingData.fees[0].amount).toFixed(2)}</span>
+          ) : (
+          <span style={{ color: '#c4c4c4', float:'right' }}>$0.00</span>
+          )}
         </div>
         <div style = {{marginBottom: '0.5rem'}}>
           <span style={{ color: '#c4c4c4'  }}>Promo discount:</span>
-          <span style={{ color: '#c4c4c4', float:'right' }}>- ${promo}</span>
+          <span style={{ color: '#c4c4c4', float:'right' }}>- ${promo.toFixed(2)}</span>
         </div>
         <div style = {{marginBottom: '2rem', borderBottom:'2px solid #d4d4d4'}}>
           <span style={{ color: '#ffffff', fontSize:'20px'  }}>Final Price:</span>
-          <span style={{ color: '#ffffff', float:'right', fontSize:'20px', fontWeight:'bold' }}>${finalCost}</span>
+          {pricingData ? (
+          <span style={{ color: '#ffffff', float:'right', fontSize:'20px', fontWeight:'bold' }}>${(parseFloat(pricingData.fees[0].amount) + total + (total*salesTax) + (total * promoDiscount)).toFixed(2) }</span>
+          ) : (
+          <span style={{ color: '#c4c4c4', float:'right' }}>$0.00</span>
+          )}
+          
         </div>
         {cardSelected && (
         <div style = {{marginBottom: '0.5rem'}}>
