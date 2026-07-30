@@ -34,6 +34,7 @@ export default function Page({ params }) {
     adult : adult,
     child : child,
     senior : senior,
+    bookId : searchParams.get('bookId')
     }).toString()
 
   const handleSubmit = async (e) => {

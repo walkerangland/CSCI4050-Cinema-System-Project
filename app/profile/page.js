@@ -2,15 +2,16 @@
 import styles from '../home.module.css'
 import { useState, useEffect } from 'react'
 import { InputField } from '../register/page'
-import { GetMovieByID } from '../../lib/movies'
 import Link from 'next/link'
 
 export default function ProfilePage() {
   const [userData, setUserData] = useState(null)
   const [cardData, setCardData] = useState(null)
+  const [bookingData, setBookingData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [isEditing, setEditing] = useState(false)
   const [isAddCard, setAddCard] = useState(false)
+  const [movieData, setMovieData] = useState([])
 
   const [editForm, setEditForm] = useState({
     firstName: '', lastName: '', phoneNumber: '', street: '', city: '', state: '', zipCode: '',
@@ -20,6 +21,17 @@ export default function ProfilePage() {
   const [cardForm, setCardForm] = useState({
     cardNumber: '', expirationMonth: '', expirationYear: '', cardholderName: ''
   })
+
+  useEffect(() => {
+    const fetchMovies = async () => {
+      const res = await fetch('/api/user/get-movie')
+      if (res.ok) {
+        const data = await res.json()
+        setMovieData(data)
+      }
+    }
+    fetchMovies()
+  }, [])
 
   useEffect(() => {
     try {
@@ -64,7 +76,7 @@ export default function ProfilePage() {
   }, [])
 
   useEffect(() => {
-  const fetchCardData = async () => {
+    const fetchCardData = async () => {
       try {
         const res = await fetch('/api/user/credit-cards')
         if (res.ok) {
@@ -77,6 +89,21 @@ export default function ProfilePage() {
     }
     
     fetchCardData()
+  }, [])
+
+  useEffect(() => {
+    const fetchBooking = async () => {
+      try{
+        const res = await fetch('/api/book')
+        if (res.ok) {
+          const data = await res.json()
+          setBookingData(data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+    fetchBooking()
   }, [])
 
   const handleCardSubmit = async () => {
@@ -120,6 +147,25 @@ export default function ProfilePage() {
     }
     
     alert('Profile updated!')
+    window.location.reload()
+  }
+
+  const refundTicket = async (booking) => {
+  const res = await fetch('/api/book' , {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      bookId : booking.id,
+      status : "CANCELLED"
+    })
+  })
+
+  const data = await res.json()
+  if (!res.ok) {
+    alert('There was an error cancelling your ticket: ' + data.message)
+    return
+  }
+    alert('Ticket Cancelled and refunded!')
     window.location.reload()
   }
 
@@ -203,7 +249,6 @@ return (
       {/* --- Credit Cards section --- */}
       <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', marginTop: '1.5rem', textAlign: 'center' }}>Credit Cards</h1>
       <div style={{ fontFamily: 'sans-serif', fontSize: '1rem', maxWidth: '750px', margin: '0 auto', padding: '0.5rem', backgroundColor: '#232323', borderRadius: '12px', border: '1px solid #5a0000', color: '#ffffff' }}>
-        // Using optional chaining (cleanest approach):
         {cardData?.length < 3 && !isAddCard &&(
           <button onClick={() => setAddCard(true)} style={{type:'button', padding: '0.4rem', backgroundColor: 'transparent', color: '#59ff6f', outline: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold'}}>Add New Card...</button>
         )}
@@ -254,14 +299,16 @@ return (
         {userData.favorites && userData.favorites.length > 0 ? (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             {userData.favorites.map((fav) => {
-              const movieData = GetMovieByID(fav.movieId) 
-              if (!movieData) return null
+            if (!Array.isArray(movieData)) return null
+
+            const movie = movieData.find(m => m.id === Number(fav.movieId))
+            if (!movie) return null
               return (
                 <div key={fav.id} style={{ display: 'flex', gap: '1rem', padding: '0.5rem', background: '#1c1c1c', borderRadius: '8px' }}>
-                  <img src={movieData.posterUrl} alt={movieData.title} style={{ width: '50px', height: '75px', borderRadius: '4px', objectFit: 'cover' }} />
+                  <img src={movie.posterUrl} alt={movie.title} style={{ width: '50px', height: '75px', borderRadius: '4px', objectFit: 'cover' }} />
                   <div>
-                    <p style={{ fontWeight: 'bold', fontSize: '1rem', margin: '0 0 0.25rem' }}>{movieData.title}</p>
-                    <Link href={`/details/${movieData.status}/${movieData.id}`} style={{ color: '#f5c518', fontSize: '0.85rem' }}>View Details</Link>
+                    <p style={{ fontWeight: 'bold', fontSize: '1rem', margin: '0 0 0.25rem' }}>{movie.title}</p>
+                    <Link href={`/details/${movie.status}/${movie.id}`} style={{ color: '#f5c518', fontSize: '0.85rem' }}>View Details</Link>
                   </div>
                 </div>
               )
@@ -270,6 +317,41 @@ return (
           </div>
         ) : (
           <p style={{ textAlign: 'center', color: '#aaa' }}>No favorite movies added yet.</p>
+        )}
+      </div>
+      <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', marginTop: '1.5rem', textAlign: 'center' }}>Your Bookings </h1>
+      <div style={{ fontFamily: 'sans-serif', fontSize: '1rem', maxWidth: '750px', margin: '0 auto', padding: '1rem', backgroundColor: '#232323', borderRadius: '12px', border: '1px solid #5a0000', color: '#ffffff' }}>
+        
+        {bookingData && (
+          <div>
+            {bookingData.map((booking) => {
+              if (booking.status == "CONFIRMED") {
+                console.log(booking)
+                if (!Array.isArray(movieData)) return null
+                const movie = movieData.find(m => m.id === Number(booking.movieId))
+                const dateObj = new Date(booking.startTime)
+                const time = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                const date = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' })
+                const minsTillShowing = (((dateObj.getTime() - Date.now()) / 1000)/60)
+                return(
+                <div key={booking.id} style={{display:'flex', margin:'0.5rem', gap:'0.5rem', width:'80%', border:'1px solid #2036ff', backgroundColor:'#696969'}}>
+                  <p>Price: ${booking.totalprice}</p>
+                  <p>Movie: {movie.title}</p>
+                  <p>Ticket count: {booking.ticketCount ?? 1}</p>
+                  <p>Showtime: {date} {time} at Showroom {booking.hallId}</p>
+                  {minsTillShowing >= 60 && (
+                  <button 
+                    disabled= {minsTillShowing < 60}
+                    onClick={() => refundTicket(booking)}
+                    style={{ backgroundColor: '#c0392b', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer' }}>
+                    Refund Ticket 
+                  </button>
+                  )}
+                </div>
+                )
+              }
+            })}  
+          </div>
         )}
       </div>
     </div>

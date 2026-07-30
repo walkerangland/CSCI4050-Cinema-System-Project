@@ -18,10 +18,12 @@ export default function Page({ params }) {
   const [cardSelected, setCardSelected] = useState(false)
   
   const total = parseFloat(searchParams.get('total'))
-
   const salesTax = 0.07
   const promoDiscount = 0.0
-  const finalCost = (total + (total * salesTax) - (total * promoDiscount))
+  const tax = (total * salesTax).toFixed(2)
+  const promo = (total * promoDiscount).toFixed(2)
+
+  const finalCost = (total + (total * salesTax) - (total * promoDiscount)).toFixed(2)
 
   useEffect(() => {
     const fetchCardData = async () => { 
@@ -58,7 +60,22 @@ export default function Page({ params }) {
   const submitPayment = async (e) => {
     e.preventDefault()
     setSubmitLoading(true)
-    alert('Payment Submitted')
+    const res = await fetch('/api/book' , {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        bookId : searchParams.get('bookId'),
+        status : "CONFIRMED",
+        totalPrice: finalCost
+      })
+    })
+    const data = await res.json()
+    if (!res.ok) {
+      alert('There was an error booking: ' + data.message)
+      setSubmitLoading(false)
+      return
+    }
+    alert(data.message)
     setSubmitLoading(false)
     router.push('/payment-confirmation')
   }
@@ -138,15 +155,15 @@ export default function Page({ params }) {
         </div>
         <div style = {{marginBottom: '0.5rem'}}>
           <span style={{ color: '#c4c4c4'  }}>Tax:</span>
-          <span style={{ color: '#c4c4c4', float:'right' }}>${(total * salesTax).toFixed(2)}</span>
+          <span style={{ color: '#c4c4c4', float:'right' }}>${tax}</span>
         </div>
         <div style = {{marginBottom: '0.5rem'}}>
           <span style={{ color: '#c4c4c4'  }}>Promo discount:</span>
-          <span style={{ color: '#c4c4c4', float:'right' }}>- ${(total * promoDiscount).toFixed(2)}</span>
+          <span style={{ color: '#c4c4c4', float:'right' }}>- ${promo}</span>
         </div>
         <div style = {{marginBottom: '2rem', borderBottom:'2px solid #d4d4d4'}}>
           <span style={{ color: '#ffffff', fontSize:'20px'  }}>Final Price:</span>
-          <span style={{ color: '#ffffff', float:'right', fontSize:'20px', fontWeight:'bold' }}>${(finalCost)}</span>
+          <span style={{ color: '#ffffff', float:'right', fontSize:'20px', fontWeight:'bold' }}>${finalCost}</span>
         </div>
         {cardSelected && (
         <div style = {{marginBottom: '0.5rem'}}>
