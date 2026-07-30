@@ -3,7 +3,7 @@ import { Prisma } from '@prisma/client'
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import jwt from 'jsonwebtoken'
-import { fetchSegmentPrefetchesUsingDynamicRequest } from 'next/dist/client/components/segment-cache/cache'
+import nodemailer from 'nodemailer'
 
   const prisma = new PrismaClient()
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
@@ -105,8 +105,15 @@ export async function POST(req) {
     const userId = decoded.userId
     const { showtimeId, totalPrice, status, seatIds, quantities, ticketTypes, hallId, bookId } = await req.json()
 
-    // For payment page, only changes the status and price
+    const currentUser = await prisma.user.findUnique({
+      where: { id: userId }
+    })
+
+    // For payment page and profile, only changes the status and price
     if (status != null) {
+      if (status == 'PENDING') {
+        return
+      }
       const booking = await prisma.booking.update({
         where: { id : parseInt(bookId) },
         data: {
@@ -114,8 +121,54 @@ export async function POST(req) {
           totalPrice: totalPrice 
         }
       })
+
+      const showtime = await prisma.showtime.findUnique({
+        where: { id : parseInt(showtimeId) }
+      })
+
+      const movie = await prisma.movie.findUnique({
+        where: { id: parseInt(showtime.movieId) }
+      })
+
+      // Send payment confirmation email
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      })
+      
+      const dateObj = showtime.startTime
+      const time = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      const date = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' })
+
+      let emailHtml = `          
+        <h2>Order Confirmation Summary for: ${currentUser.firstName} ${currentUser.lastName}</h2>
+        <p>Your order of $${totalPrice} for ${movie.title} at ${date} ${time} in Showroom ${showtime.hallId} has been confirmed.</p>
+        <p>Your booking id: ${bookId}<p>
+        <h3>You can view more information on your profile page. </h3>
+      `
+      let subjectHtml = `Order Confirmed - Cinema Booking`
+      if (status == 'CANCELLED') {
+        emailHtml = `
+        <h2>Order Cancellation Confirm for: ${currentUser.firstName} ${currentUser.lastName}</h2>
+        <p>Your order of $${totalPrice} for ${movie.title} at ${date} ${time} at Showroom ${booking.hallId} has been cancelled.</p>
+        <p>Your booking id: ${bookId}<p>
+        <h3>Please contact an admin if this was a mistake or if you have any issues. </h3>`
+
+        subjectHtml = `Order Cancelled - Cinema Booking`
+      }
+
+      await transporter.sendMail({
+        from: `"Cinema Booking" <${process.env.EMAIL_USER}>`,
+        to: currentUser.email,
+        subject: subjectHtml,
+        html: emailHtml,
+      })
+
       return NextResponse.json(
-        { message: 'Payment confirmed!' },
+        { message: 'Payment confirmed! Confirmation email sent.' },
         { status: 200 }
       )
     }

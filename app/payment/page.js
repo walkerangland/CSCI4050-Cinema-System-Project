@@ -66,7 +66,8 @@ export default function Page({ params }) {
       body: JSON.stringify({
         bookId : searchParams.get('bookId'),
         status : "CONFIRMED",
-        totalPrice: finalCost
+        totalPrice: finalCost,
+        showtimeId : searchParams.get('showtimeId')
       })
     })
     const data = await res.json()

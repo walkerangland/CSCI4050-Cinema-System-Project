@@ -156,7 +156,9 @@ export default function ProfilePage() {
     headers: { 'Content-Type': 'application/json'},
     body: JSON.stringify({
       bookId : booking.id,
-      status : "CANCELLED"
+      status : "CANCELLED",
+      totalPrice : booking.totalprice,
+      showtimeId : booking.showtimeId
     })
   })
 
@@ -333,6 +335,7 @@ return (
                 const time = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                 const date = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' })
                 const minsTillShowing = (((dateObj.getTime() - Date.now()) / 1000)/60)
+                if (!movie) return null
                 return(
                 <div key={booking.id} style={{display:'flex', margin:'0.5rem', gap:'0.5rem', width:'80%', border:'1px solid #2036ff', backgroundColor:'#696969'}}>
                   <p>Price: ${booking.totalprice}</p>
