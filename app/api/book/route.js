@@ -5,7 +5,7 @@ import { cookies } from 'next/headers'
 import jwt from 'jsonwebtoken'
 import { fetchSegmentPrefetchesUsingDynamicRequest } from 'next/dist/client/components/segment-cache/cache'
 
-const prisma = new PrismaClient()
+  const prisma = new PrismaClient()
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
 
 // Get specific booking information
@@ -24,7 +24,7 @@ export async function GET(req) {
     const decoded = jwt.verify(token, JWT_SECRET)
     const userId = decoded.userId
 
-    const bookings = await prisma.PaymentCard.findMany({
+    const bookings = await prisma.booking.findMany({
       where: { userId },
       select: {
         id: true,
@@ -34,14 +34,47 @@ export async function GET(req) {
         totalPrice: true
       }
     })
+
+    const ticketCounts = await prisma.ticket.groupBy({
+      by: ['bookingId'],
+      where: {
+        bookingId: { in: bookings.map(b => b.id) },
+      },
+      _count: { _all: true },
+    })
+
+    const countsByBookingId = Object.fromEntries(
+      ticketCounts.map(x => [x.bookingId, x._count._all])
+    )
+
+    const showtimes = await prisma.showtime.findMany({
+      where:{ 
+        id: { in: bookings.map(b => b.showtimeId) },
+      },
+      select: {
+        id: true,
+        movieId: true,
+        hallId: true,
+        startTime: true
+      }
+    })
+
+    const showtimeById = new Map(showtimes.map(st => [st.id, st]));
     
     const responseBookings = bookings.map(book => {
+      const st = showtimeById.get(book.showtimeId);
       return {
         id: book.id,
         showtimeId: book.showtimeId,
         bookingNumber: book.bookingNumber,
         status: book.status,
-        totalprice: book.totalPrice
+        totalprice: book.totalPrice,
+        ticketCount: countsByBookingId[book.id] ?? 1,
+        ...(st && {
+          movieId: st.movieId,
+          hallId: st.hallId,
+          startTime: st.startTime,
+    }),
       }
     })
 
@@ -72,12 +105,13 @@ export async function POST(req) {
     const userId = decoded.userId
     const { showtimeId, totalPrice, status, seatIds, quantities, ticketTypes, hallId, bookId } = await req.json()
 
-    // For payment page, only changes the status
+    // For payment page, only changes the status and price
     if (status != null) {
       const booking = await prisma.booking.update({
         where: { id : parseInt(bookId) },
         data: {
-          status: status
+          status: status,
+          totalPrice: totalPrice 
         }
       })
       return NextResponse.json(
