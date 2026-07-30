@@ -3,6 +3,27 @@ import { NextResponse } from 'next/server'
 
 const prisma = new PrismaClient()
 
+export async function GET() {
+  try {
+    const [showtimes, movies, halls] = await Promise.all([
+      prisma.showtime.findMany({
+        orderBy: { startTime: 'asc' },
+        include: {
+          movie: true,
+          hall: true
+        }
+      }),
+      prisma.movie.findMany({ orderBy: { title: 'asc' } }),
+      prisma.hall.findMany({ orderBy: { name: 'asc' } })
+    ])
+
+    return NextResponse.json({ showtimes, movies, halls }, { status: 200 })
+  } catch (error) {
+    console.error('Fetch showtimes error:', error)
+    return NextResponse.json({ message: 'Failed to fetch showtimes.' }, { status: 500 })
+  }
+}
+
 export async function POST(req) {
   try {
     const { movieId, hallId, startTime } = await req.json()
@@ -11,7 +32,7 @@ export async function POST(req) {
       return NextResponse.json({ message: 'Movie, Hall, and Start Time are required.' },
         { status: 400 })
     }
-    
+
     const showtime = await prisma.showtime.create({
       data: {
         movieId: parseInt(movieId),
@@ -21,15 +42,14 @@ export async function POST(req) {
     })
 
     return NextResponse.json({ message: 'Showtime scheduled successfully', showtime },
-        { status: 201 })
+      { status: 201 })
   } catch (error) {
-    //Prisma's error code for a unique constraint violation
     if (error.code === 'P2002') {
       return NextResponse.json({ message: 'Conflict: This hall is already booked for that time.' },
         { status: 409 })
     }
     console.error('Schedule showtime error:', error)
     return NextResponse.json({ message: 'Server error' },
-        { status: 500 })
+      { status: 500 })
   }
 }
