@@ -14,7 +14,8 @@ export default function AdminShowtimesPage() {
   const [movies, setMovies] = useState([])
   const [halls, setHalls] = useState([])
   const [form, setForm] = useState(emptyForm)
-  const [message, setMessage] = useState('')
+  const [success, setSuccess] = useState(false)
+  const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
 
   const loadShowtimes = async () => {
@@ -34,7 +35,8 @@ export default function AdminShowtimesPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    setMessage('')
+    setError('')
+    setSuccess(false)
 
     const response = await fetch('/api/admin/showtimes', {
       method: 'POST',
@@ -43,12 +45,16 @@ export default function AdminShowtimesPage() {
     })
 
     const data = await response.json()
-    setMessage(data.message || 'Action completed')
 
-    if (response.ok) {
-      setForm(emptyForm)
-      await loadShowtimes()
+    if (!response.ok) {
+      setError(data.message || 'Failed to schedule showtime.')
+      return
     }
+
+    setSuccess(true)
+    setForm(emptyForm)
+    setTimeout(() => setSuccess(false), 3000)
+    await loadShowtimes()
   }
 
   return (
@@ -61,7 +67,17 @@ export default function AdminShowtimesPage() {
         <Link href="/admin" style={{ color: '#c0392b', textDecoration: 'none', fontWeight: 'bold' }}>← Back to dashboard</Link>
       </div>
 
-      {message ? <div style={{ marginBottom: '1rem', color: '#f5c542' }}>{message}</div> : null}
+      {success && (
+        <div style={{ backgroundColor: '#052e16', border: '1px solid #22c55e', borderRadius: '8px', padding: '0.75rem', marginBottom: '1rem', color: '#22c55e' }}>
+          ✓ Showtime scheduled successfully!
+        </div>
+      )}
+
+      {error && (
+        <div style={{ backgroundColor: '#3b0000', border: '1px solid #ef4444', borderRadius: '8px', padding: '0.75rem', marginBottom: '1rem', color: '#fca5a5' }}>
+          {error}
+        </div>
+      )}
 
       <div style={{ display: 'grid', gap: '1.5rem', gridTemplateColumns: 'minmax(280px, 360px) 1fr' }}>
         <form onSubmit={handleSubmit} style={{ backgroundColor: '#1c1c1c', border: '1px solid #5a0000', borderRadius: '12px', padding: '1.5rem' }}>

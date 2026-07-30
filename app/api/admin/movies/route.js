@@ -33,9 +33,84 @@ export async function POST(req) {
 
 export async function GET() {
   try {
-    const movies = await prisma.movie.findMany({ orderBy: { createdAt: 'desc' } })
+    const movies = await prisma.movie.findMany({
+      include: {
+        showtimes: true
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    })
+
     return NextResponse.json({ movies }, { status: 200 })
   } catch (error) {
-    return NextResponse.json({ message: 'Failed to fetch movies.' }, { status: 500 })
+    console.error(error)
+    return NextResponse.json(
+      { message: 'Failed to fetch movies.' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function PUT(req) {
+  try {
+    const data = await req.json()
+    
+    if (!data.id) {
+      return NextResponse.json({ message: 'Movie ID is required.' },
+        { status: 400 })
+    }
+
+    const movieId = Number(data.id)
+    const updatePayload = {}
+
+    if (data.title !== undefined) updatePayload.title = data.title
+    if (data.genre !== undefined) updatePayload.genre = data.genre
+    if (data.rating !== undefined) updatePayload.rating = data.rating
+    if (data.description !== undefined) updatePayload.description = data.description
+    if (data.posterUrl !== undefined) updatePayload.posterUrl = data.posterUrl
+    if (data.trailerUrl !== undefined) updatePayload.trailerUrl = data.trailerUrl
+    if (data.director !== undefined) updatePayload.director = data.director
+    if (data.producer !== undefined) updatePayload.producer = data.producer
+    if (data.cast !== undefined) updatePayload.cast = data.cast
+    
+    if (data.status !== undefined) {
+        updatePayload.status = data.status === 'coming-soon' ? 'COMING_SOON' : 'CURRENTLY_RUNNING'
+    }
+
+    const movie = await prisma.movie.update({
+      where: { id: movieId },
+      data: updatePayload
+    })
+
+    return NextResponse.json({ message: 'Movie updated successfully', movie },
+      { status: 200 })
+  } catch (error) {
+    console.error('Update movie error:', error)
+    return NextResponse.json({ message: 'Unable to update movie.' },
+      { status: 500 })
+  }
+}
+
+export async function DELETE(req) {
+  try {
+    const { id } = await req.json()
+    
+    if (!id) {
+      return NextResponse.json({ message: 'Movie ID is required.' }, { status: 400 })
+    }
+
+    const movieId = Number(id)
+    
+    await prisma.movie.delete({
+      where: { id: movieId }
+    })
+
+    return NextResponse.json({ message: 'Movie deleted successfully' },
+      { status: 200 })
+  } catch (error) {
+    console.error('Delete movie error:', error)
+    return NextResponse.json({ message: 'Unable to delete movie.' },
+      { status: 500 })
   }
 }
