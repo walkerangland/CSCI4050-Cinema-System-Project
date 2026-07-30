@@ -7,7 +7,7 @@ export async function POST(req) {
   try {
     const data = await req.json()
 
-    const statusEnum = data.status === 'coming-soon' ? 'COMING_SOON' : 'CURRENTLY_RUNNING'
+    const statusEnum = data.status === 'COMING_SOON' ? 'COMING_SOON' : 'CURRENTLY_RUNNING'
 
     const movie = await prisma.movie.create({
       data: {
@@ -75,7 +75,7 @@ export async function PUT(req) {
     if (data.cast !== undefined) updatePayload.cast = data.cast
     
     if (data.status !== undefined) {
-        updatePayload.status = data.status === 'coming-soon' ? 'COMING_SOON' : 'CURRENTLY_RUNNING'
+        updatePayload.status = data.status === 'COMING_SOON' ? 'COMING_SOON' : 'CURRENTLY_RUNNING'
     }
 
     const movie = await prisma.movie.update({
