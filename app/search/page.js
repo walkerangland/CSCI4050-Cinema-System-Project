@@ -122,15 +122,20 @@ useEffect(() => {
                       <div>
                         <p style={{ fontSize: '0.75rem', color: '#aaaaaa', marginBottom: '0.4rem' }}>Showtimes:</p>
                         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                          {movie.showtimes.map((showtime) => (
-                            <Link
-                              key={showtime.id}
-                              href={`/book?movie=${encodeURIComponent(movie.title)}&showtimeId=${showtime.id}&time=${encodeURIComponent(new Date(showtime.startTime).toLocaleString())}`}
-                              style={{ padding: '0.3rem 0.75rem', backgroundColor: '#c0392b', color: 'white', borderRadius: '6px', fontSize: '0.8rem', textDecoration: 'none' }}
-                            >
-                              {new Date(showtime.startTime).toLocaleDateString()} {new Date(showtime.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </Link>
-                          ))}
+                          {movie.showtimes.map((showtime) => {
+                            const timeString = new Date(showtime.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                            const dateNumeric = new Date(showtime.startTime).toLocaleDateString()
+  
+                            return (
+                              <Link
+                                key={showtime.id}
+                                href={`/book?movie=${encodeURIComponent(movie.title)}&showtimeId=${showtime.id}&time=${encodeURIComponent(timeString)}&date=${encodeURIComponent(dateNumeric)}&hallId=${encodeURIComponent(showtime.hallId)}`}
+                                style={{ padding: '0.3rem 0.75rem', backgroundColor: '#c0392b', color: 'white', borderRadius: '6px', fontSize: '0.8rem', textDecoration: 'none' }}
+                              >
+                                {dateNumeric} {timeString}
+                              </Link>
+                            )
+                          })}
                         </div>
                       </div>
                     )}
