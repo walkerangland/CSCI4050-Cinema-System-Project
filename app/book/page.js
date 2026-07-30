@@ -13,6 +13,7 @@ export default function BookingPage() {
   const movie = params.get('movie') || 'Unknown Movie'
   const time = params.get('time') || 'Unknown Time'
   const date = params.get('date') || 'Unknown Date'
+  const hallId = params.get('hallId') || 'Unknown Showroom'
   const showtimeId = params.get('showtimeId')
   
   const [quantities, setQuantities] = useState({ Adult: 0, Child: 0, Senior: 0 })
@@ -127,12 +128,13 @@ export default function BookingPage() {
         totalPrice: total,
         seatIds: selectedSeats,
         quantities: quantities,
-        ticketTypes: ticketTypes
+        ticketTypes: ticketTypes,
+        hallId: hallId
       }),
     })
     const data = await bookRes.json()
     if (!bookRes.ok) {
-      alert('There was an error booking')
+      alert('There was an error booking: ' + data.message)
       return
     }
 
@@ -156,7 +158,7 @@ export default function BookingPage() {
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem', fontFamily: 'sans-serif', backgroundColor: '#0d0d0d', color: '#ffffff'}}>
       {/* Header */}
       <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>{movie}</h1>
-      <p style={{ color: '#aaaaaa', marginBottom: '2rem' }}>Showtime: {date} {time}</p>
+      <p style={{ color: '#aaaaaa', marginBottom: '2rem' }}>Showtime: {date} {time} @ Showroom {hallId}</p>
       
       {/* Ticket Selector */}
       <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem' }}>Select Tickets</h2>

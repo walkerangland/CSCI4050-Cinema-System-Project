@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import jwt from 'jsonwebtoken'
@@ -68,10 +69,7 @@ export async function POST(req) {
 
     const decoded = jwt.verify(token, JWT_SECRET)
     const userId = decoded.userId
-    const { showtimeId, totalPrice, status, seatIds, quantities, ticketTypes } = await req.json()
-
-    //**TEMP REPLACE LATER */
-    const hallId = 1
+    const { showtimeId, totalPrice, status, seatIds, quantities, ticketTypes, hallId } = await req.json()
 
     // Validation
     if (!showtimeId || !totalPrice) {
@@ -95,6 +93,7 @@ export async function POST(req) {
 
     const showtimeIdInt = parseInt(showtimeId)
     const totalPriceDecimal = parseFloat(totalPrice)
+    console.log('totalprice:' + totalPriceDecimal)
 
     const bookingNumber = String(Date.now())
 
@@ -127,15 +126,15 @@ export async function POST(req) {
 
     const seatCodes = seatIds // ['A7', 'A8']
 
-    const priceByType = Object.fromEntries(
-      ticketTypes.map((t) => [t.type, t.price])
-    )
-
     const typeToEnum = {
       Adult: "ADULT",
       Child: "CHILD",
       Senior: "SENIOR",
     };
+
+    const priceByType = Object.fromEntries(
+      ticketTypes.map((t) => [typeToEnum[t.type], t.price])
+    )
 
     const requestedCategories = [];
     for (const [type, count] of Object.entries(quantities)) {
@@ -155,47 +154,55 @@ export async function POST(req) {
       seatCodes.map(async (code) => {
         const { row, number } = parseSeatCode(code);
         // seat unique key = (hallId, row, number)
-        const seat = await prisma.seat.findUnique({
+        const seat = await prisma.seat.upsert({
           where: {
             hallId_row_number: {
-              hallId,
+              hallId : parseInt(hallId),
               row,
               number,
             },
           },
-          select: { id: true },
-        });
-
-        if (!seat) throw new Error(`Seat not found for hallId=${hallId}, row=${row}, number=${number}`);
-        return seat.id; // Int
-      })
-    );
-
-      //Creates/updates tickets along with the booking
-    const tickets = await Promise.all(
-      seats.map((seatId, index) => {
-      const ticketCategory = requestedCategories[index]
-      const price = priceByType[ticketCategory]
-        return prisma.ticket.upsert({
-          where: {
-              bookingId_seatId: {
-              bookingId: booking.id,
-              seatId:   seatId,
-            },
-          },
           update: {
-            ticketCategory,
-            price: parseFloat(price)
+
           },
           create: {
-            bookingId : booking.id,
-            seatId,
-            ticketCategory,
-            price: parseFloat(price),
+            hallId : parseInt(hallId), 
+            row, 
+            number
           },
+          select: { id: true },
         })
+        return seat.id
       })
-    );
+    )
+
+  const bookingId = booking.id;
+  console.log('booking id:' + bookingId)
+
+await Promise.all(
+  seats.map((seatId, index) => {
+    const ticketCategory = requestedCategories[index];
+    const price = priceByType[ticketCategory];
+
+    return prisma.ticket.upsert({
+      where: {
+        bookingId_seatId: { bookingId, seatId },
+      },
+      update: {
+        ticketCategory,
+        price: new Prisma.Decimal(price),
+        booking: { connect: { id: bookingId } },
+        seat: { connect: { id: seatId } },
+      },
+      create: {  
+        ticketCategory,
+        price: new Prisma.Decimal(price),
+        booking: { connect: { id: bookingId } },
+        seat: { connect: { id: seatId } },
+      },
+    });
+  })
+);
 
     return NextResponse.json(
       { message: 'Booking successfully created/updated.' , book: booking },
