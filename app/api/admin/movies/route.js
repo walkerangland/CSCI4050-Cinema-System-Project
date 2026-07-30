@@ -5,10 +5,11 @@ const prisma = new PrismaClient()
 
 export async function POST(req) {
   try {
+    // Parse the request body sent by the frontend
     const data = await req.json()
-
+    // converts frontend status to backend enum
     const statusEnum = data.status === 'coming-soon' ? 'COMING_SOON' : 'CURRENTLY_RUNNING'
-
+    // Create a new movie record in the database
     const movie = await prisma.movie.create({
       data: {
         title: data.title,
@@ -23,17 +24,18 @@ export async function POST(req) {
         cast: data.cast
       }
     })
-
+    // returns success message and the created movie object
     return NextResponse.json({ message: 'Movie added successfully', movie }, { status: 201 })
   } catch (error) {
     console.error('Add movie error:', error)
     return NextResponse.json({ message: 'Server error' }, { status: 500 })
   }
 }
-
+// Prisma findMany with showtimes included, ordered by createdAt descending
 export async function GET() {
   try {
     const movies = await prisma.movie.findMany({
+      // get all movies with their associated showtimes
       include: {
         showtimes: true
       },
@@ -41,7 +43,7 @@ export async function GET() {
         createdAt: 'desc'
       }
     })
-
+    // returns the list of movies with their showtimes
     return NextResponse.json({ movies }, { status: 200 })
   } catch (error) {
     console.error(error)
@@ -51,19 +53,19 @@ export async function GET() {
     )
   }
 }
-
+// Update movie details based on the provided ID and data
 export async function PUT(req) {
   try {
     const data = await req.json()
-    
+    //if no id is provided in the request body, return a 400 error
     if (!data.id) {
       return NextResponse.json({ message: 'Movie ID is required.' },
         { status: 400 })
     }
-
+    // Convert the provided ID for Prisma 
     const movieId = Number(data.id)
     const updatePayload = {}
-
+    // adds fields that needs to be updated
     if (data.title !== undefined) updatePayload.title = data.title
     if (data.genre !== undefined) updatePayload.genre = data.genre
     if (data.rating !== undefined) updatePayload.rating = data.rating
@@ -73,11 +75,11 @@ export async function PUT(req) {
     if (data.director !== undefined) updatePayload.director = data.director
     if (data.producer !== undefined) updatePayload.producer = data.producer
     if (data.cast !== undefined) updatePayload.cast = data.cast
-    
+    // Convert the status from frontend to backend enum if provided
     if (data.status !== undefined) {
         updatePayload.status = data.status === 'coming-soon' ? 'COMING_SOON' : 'CURRENTLY_RUNNING'
     }
-
+    // Update the movie record in the database
     const movie = await prisma.movie.update({
       where: { id: movieId },
       data: updatePayload
@@ -91,17 +93,17 @@ export async function PUT(req) {
       { status: 500 })
   }
 }
-
+// Delete a movie based on the provided ID
 export async function DELETE(req) {
   try {
     const { id } = await req.json()
-    
+    //if no id is provided in the request body, return a 400 error
     if (!id) {
       return NextResponse.json({ message: 'Movie ID is required.' }, { status: 400 })
     }
-
+    // Convert the provided ID for Prisma
     const movieId = Number(id)
-    
+    // Delete the movie record from the database
     await prisma.movie.delete({
       where: { id: movieId }
     })
