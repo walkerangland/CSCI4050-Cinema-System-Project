@@ -55,6 +55,29 @@ export default function ManageShowtimesPage() {
   const inputStyle = { width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #5a0000', backgroundColor: '#0d0d0d', color: '#ffffff', fontSize: '1rem', boxSizing: 'border-box' }
   const labelStyle = { display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', color: '#aaaaaa' }
 
+  const [userLoading, setUserLoading] = useState(true)
+  const [userData, setUserData] = useState(null)
+  useEffect(() => {
+      try {
+      const fetchProfile = async () => {
+          const res = await fetch('/api/user/profile')
+          if (res.ok) {
+            const data = await res.json()
+            setUserData(data)
+          }
+          setUserLoading(false)
+      }
+      fetchProfile()
+      } 
+      catch (err) {
+        console.error(err)
+      }
+
+    }, [])
+
+  if (userLoading) return <p>Loading...</p>
+  if ( !userData || userData.role != 'ADMIN') return <p>Not authorized.</p>
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#0d0d0d', color: '#ffffff', fontFamily: 'sans-serif' }}>
       <div style={{ backgroundColor: '#1c1c1c', borderBottom: '1px solid #5a0000', padding: '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
