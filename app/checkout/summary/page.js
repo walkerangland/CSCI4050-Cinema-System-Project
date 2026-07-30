@@ -21,7 +21,7 @@ export default function Page({ params }) {
   const [emailForm, setEmailForm] = useState({
     email: ''
   })
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [emailLoading, setEmailLoading] = useState(false)
   const [error, setError] = useState('')
   const [email, setEmail] = useState('')
@@ -34,6 +34,7 @@ export default function Page({ params }) {
     adult : adult,
     child : child,
     senior : senior,
+    bookId : searchParams.get('bookId')
     }).toString()
 
   const handleSubmit = async (e) => {

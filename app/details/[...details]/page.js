@@ -102,7 +102,7 @@ export default async function Page({ params }) {
                                                 <div style={{ height: '1.2rem' }}></div>
                                             )}
                                             <Link
-                                                href={`/book?movie=${encodeURIComponent(movie.title)}&showtimeId=${st.id}&time=${encodeURIComponent(timeString)}&date=${encodeURIComponent(dateNumeric)}`}
+                                                href={`/book?movie=${encodeURIComponent(movie.title)}&showtimeId=${st.id}&time=${encodeURIComponent(timeString)}&date=${encodeURIComponent(dateNumeric)}&hallId=${encodeURIComponent(st.hallId)}`}
                                                 style={{
                                                     padding: '0.5rem 0.8rem',
                                                     backgroundColor: '#1a1a2e',

@@ -13,6 +13,7 @@ export default function BookingPage() {
   const movie = params.get('movie') || 'Unknown Movie'
   const time = params.get('time') || 'Unknown Time'
   const date = params.get('date') || 'Unknown Date'
+  const hallId = params.get('hallId') || 'Unknown Showroom'
   const showtimeId = params.get('showtimeId')
   
   const [quantities, setQuantities] = useState({ Adult: 0, Child: 0, Senior: 0 })
@@ -56,6 +57,7 @@ export default function BookingPage() {
         .then(res => res.json())
         .then(data => {
           if (data.takenSeats) setTakenSeats(data.takenSeats)
+          console.log('taken seats:' + data.takenSeats)
           setLoadingSeats(false)
         })
         .catch(err => {
@@ -117,7 +119,26 @@ export default function BookingPage() {
       router.push('/login')
       return
     }
-    
+    console.log('showtimeID: ' + showtimeId)
+    console.log('totalprice: ' + total)
+    const bookRes = await fetch('api/book', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        showtimeId,
+        totalPrice: total,
+        seatIds: selectedSeats,
+        quantities: quantities,
+        ticketTypes: ticketTypes,
+        hallId: hallId
+      }),
+    })
+    const data = await bookRes.json()
+    if (!bookRes.ok) {
+      alert('There was an error booking: ' + data.message)
+      return
+    }
+
     // Route to the Order Summary page passing data as query parameters
     const query = new URLSearchParams({
       movie,
@@ -128,17 +149,18 @@ export default function BookingPage() {
       adult: quantities.Adult,
       child: quantities.Child,
       senior: quantities.Senior,
-      total: total.toFixed(2)
+      total: total.toFixed(2),
+      bookId: data.bookingId
     }).toString()
     
     router.push(`/checkout/summary?${query}`)
-  }
 
+  }
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem', fontFamily: 'sans-serif', backgroundColor: '#0d0d0d', color: '#ffffff'}}>
       {/* Header */}
       <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>{movie}</h1>
-      <p style={{ color: '#aaaaaa', marginBottom: '2rem' }}>Showtime: {date} {time}</p>
+      <p style={{ color: '#aaaaaa', marginBottom: '2rem' }}>Showtime: {date} {time} @ Showroom {hallId}</p>
       
       {/* Ticket Selector */}
       <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem' }}>Select Tickets</h2>

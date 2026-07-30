@@ -7,9 +7,9 @@ export async function POST(req) {
   try {
     // Parse the request body sent by the frontend
     const data = await req.json()
-    // converts frontend status to backend enum
-    const statusEnum = data.status === 'coming-soon' ? 'COMING_SOON' : 'CURRENTLY_RUNNING'
-    // Create a new movie record in the database
+    // Convert the status from frontend to Prisma enum
+    const statusEnum = data.status === 'COMING_SOON' ? 'COMING_SOON' : 'CURRENTLY_RUNNING'
+
     const movie = await prisma.movie.create({
       data: {
         title: data.title,
@@ -77,7 +77,7 @@ export async function PUT(req) {
     if (data.cast !== undefined) updatePayload.cast = data.cast
     // Convert the status from frontend to backend enum if provided
     if (data.status !== undefined) {
-        updatePayload.status = data.status === 'coming-soon' ? 'COMING_SOON' : 'CURRENTLY_RUNNING'
+        updatePayload.status = data.status === 'COMING_SOON' ? 'COMING_SOON' : 'CURRENTLY_RUNNING'
     }
     // Update the movie record in the database
     const movie = await prisma.movie.update({
