@@ -117,7 +117,25 @@ export default function BookingPage() {
       router.push('/login')
       return
     }
-    
+    console.log('showtimeID: ' + showtimeId)
+    console.log('totalprice: ' + total)
+    const bookRes = await fetch('api/book', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        showtimeId,
+        totalPrice: total,
+        seatIds: selectedSeats,
+        quantities: quantities,
+        ticketTypes: ticketTypes
+      }),
+    })
+    const data = await bookRes.json()
+    if (!bookRes.ok) {
+      alert('There was an error booking')
+      return
+    }
+
     // Route to the Order Summary page passing data as query parameters
     const query = new URLSearchParams({
       movie,
@@ -132,8 +150,8 @@ export default function BookingPage() {
     }).toString()
     
     router.push(`/checkout/summary?${query}`)
-  }
 
+  }
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem', fontFamily: 'sans-serif', backgroundColor: '#0d0d0d', color: '#ffffff'}}>
       {/* Header */}
