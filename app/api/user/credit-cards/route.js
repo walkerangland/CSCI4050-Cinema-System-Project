@@ -23,7 +23,7 @@ export async function GET(req) {
     const decoded = jwt.verify(token, JWT_SECRET)
     const userId = decoded.userId
 
-    const creditCards = await prisma.PaymentCard.findMany({
+    const creditCards = await prisma.PaymentCard.findMany({ // Fetch user's encrypted credit cards
       where: { userId },
       select: {
         id: true,
@@ -35,9 +35,9 @@ export async function GET(req) {
       }
     })
     //decrypt credit cards
-    const maskedCards = creditCards.map(card => {
-      const decryptedNumber = decrypt(card.encryptedNumber)
-      return {
+    const maskedCards = creditCards.map(card => { // Map over each card
+      const decryptedNumber = decrypt(card.encryptedNumber) // Decrypt the card number
+      return {  // Return the masked card details
         id: card.id,
         cardholderName: card.cardholderName,
         expirationMonth: card.expirationMonth,
@@ -100,12 +100,12 @@ export async function POST(req) {
     const paymentCard = await prisma.paymentCard.create({
       data: {
         userId,
-        encryptedNumber: encrypt(cardNumber),
-        expirationMonth: parseInt(expirationMonth, 10) || 1,
-        expirationYear: parseInt(expirationYear, 10) || 2026,
+        encryptedNumber: encrypt(cardNumber), // Encrypt the card number
+        expirationMonth: parseInt(expirationMonth, 10) || 1,  // Ensure month is a number
+        expirationYear: parseInt(expirationYear, 10) || 2026, // Ensure year is a number
         cardholderName
       },
-      select: {
+      select: { // Select the fields to return
         id: true,
         expirationMonth: true,
         expirationYear: true,
