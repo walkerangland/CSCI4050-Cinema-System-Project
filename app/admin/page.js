@@ -1,15 +1,39 @@
 'use client'
 import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 export default function AdminPage() {
   const router = useRouter()
+  const [loading, setLoading] = useState(true)
+  const [userData, setUserData] = useState(null)
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' })
     router.push('/login')
   }
 
+useEffect(() => {
+    try {
+    const fetchProfile = async () => {
+        const res = await fetch('/api/user/profile')
+        if (res.ok) {
+          const data = await res.json()
+          setUserData(data)
+        }
+    }
+    fetchProfile()
+    } 
+    catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+
+  }, [])
+
+  if (!userData || loading) return <p>Loading...</p>
+  if ( userData.role != 'ADMIN') return <p>Not authorized.</p>
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#0d0d0d', color: '#ffffff', fontFamily: 'sans-serif' }}>
 
