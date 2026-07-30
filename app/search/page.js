@@ -7,6 +7,7 @@ const GENRES = ['All', 'Action', 'Adventure', 'Drama', 'Fantasy', 'Sci-Fi']
 export default function SearchPage() {
   const [query, setQuery] = useState('')
   const [genre, setGenre] = useState('')
+  const [sortOrder, setSortOrder] = useState('none')
   const [movies, setMovies] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -36,6 +37,14 @@ useEffect(() => {
     return matchesQuery && matchesGenre
   })
 
+  // filtering the show times logic
+  const sorted = [...filtered].sort((a, b) => {
+      if (sortOrder === 'none') return 0
+      const aEarliest = a.showtimes && a.showtimes.length > 0 ? new Date(a.showtimes[0].startTime).getTime() : Infinity
+      const bEarliest = b.showtimes && b.showtimes.length > 0 ? new Date(b.showtimes[0].startTime).getTime() : Infinity
+      return sortOrder === 'earliest' ? aEarliest - bEarliest : bEarliest - aEarliest
+    })
+
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto', padding: '2rem', fontFamily: 'sans-serif', backgroundColor: '#0d0d0d', color: '#ffffff' }}>
 
@@ -49,34 +58,44 @@ useEffect(() => {
         style={{ width: '100%', padding: '0.75rem 1rem', fontSize: '1rem', borderRadius: '8px', border: '1px solid #5a0000', backgroundColor: '#1c1c1c', color: '#ffffff', marginBottom: '1rem', boxSizing: 'border-box' }}
       />
 
-      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
-        {GENRES.map((g) => (
-          <button
-            key={g}
-            onClick={() => setGenre(g === 'All' ? '' : g)}
-            style={{ padding: '0.4rem 1rem', borderRadius: '999px', border: '1px solid #f5c518', cursor: 'pointer', backgroundColor: (genre === g || (g === 'All' && genre === '')) ? '#c0392b' : '#1c1c1c', color: '#ffffff', fontWeight: '500', fontSize: '0.875rem' }}
-          >
-            {g}
-          </button>
-        ))}
-      </div>
+
+      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '2rem', alignItems: 'center' }}>
+              {GENRES.map((g) => (
+                <button
+                  key={g}
+                  onClick={() => setGenre(g === 'All' ? '' : g)}
+                  style={{ padding: '0.4rem 1rem', borderRadius: '999px', border: '1px solid #f5c518', cursor: 'pointer', backgroundColor: (genre === g || (g === 'All' && genre === '')) ? '#c0392b' : '#1c1c1c', color: '#ffffff', fontWeight: '500', fontSize: '0.875rem' }}
+                >
+                  {g}
+                </button>
+              ))}
+              <select
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
+                style={{ padding: '0.4rem 1rem', borderRadius: '999px', border: '1px solid #f5c518', backgroundColor: '#1c1c1c', color: '#ffffff', fontSize: '0.875rem', cursor: 'pointer' }}
+              >
+                <option value="none">Sort by Showtime</option>
+                <option value="earliest">Earliest First</option>
+                <option value="latest">Latest First</option>
+              </select>
+            </div>
 
       {loading ? (
         <p style={{ color: '#aaaaaa' }}>Loading movies...</p>
       ) : (
         <>
           <p style={{ color: '#aaaaaa', marginBottom: '1rem', fontSize: '0.875rem' }}>
-            {filtered.length} {filtered.length === 1 ? 'movie' : 'movies'} found
+            {sorted.length} {sorted.length === 1 ? 'movie' : 'movies'} found
           </p>
 
-          {filtered.length === 0 ? (
+          {sorted.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '4rem', color: '#aaaaaa' }}>
               <p style={{ fontSize: '1.25rem' }}>No movies found</p>
               <p style={{ fontSize: '0.875rem' }}>Try a different search or genre</p>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {filtered.map((movie) => (
+              {sorted.map((movie) => (
                 <div key={movie.id} style={{ display: 'flex', gap: '1rem', padding: '1rem', border: '1px solid #5a0000', borderRadius: '12px', backgroundColor: '#1c1c1c' }}>
 
                   <Link href={`/details/${movie.status === 'CURRENTLY_RUNNING' ? 'now-playing' : 'coming-soon'}/${movie.id}`}>
