@@ -142,10 +142,11 @@ export async function POST(req) {
       const dateObj = showtime.startTime
       const time = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       const date = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' })
+      const fixedPrice = parseFloat(totalPrice).toFixed(2)
 
       let emailHtml = `          
         <h2>Order Confirmation Summary for: ${currentUser.firstName} ${currentUser.lastName}</h2>
-        <p>Your order of $${totalPrice} for ${movie.title} at ${date} ${time} in Showroom ${showtime.hallId} has been confirmed.</p>
+        <p>Your order of $${fixedPrice} for ${movie.title} at ${date} ${time} in Showroom ${showtime.hallId} has been confirmed.</p>
         <p>Your booking id: ${bookId}<p>
         <h3>You can view more information on your profile page. </h3>
       `
@@ -153,7 +154,7 @@ export async function POST(req) {
       if (status == 'CANCELLED') {
         emailHtml = `
         <h2>Order Cancellation Confirm for: ${currentUser.firstName} ${currentUser.lastName}</h2>
-        <p>Your order of $${totalPrice} for ${movie.title} at ${date} ${time} at Showroom ${booking.hallId} has been cancelled.</p>
+        <p>Your order of $${fixedPrice} for ${movie.title} at ${date} ${time} at Showroom ${booking.hallId} has been cancelled.</p>
         <p>Your booking id: ${bookId}<p>
         <h3>Please contact an admin if this was a mistake or if you have any issues. </h3>`
 
