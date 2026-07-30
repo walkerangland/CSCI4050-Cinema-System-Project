@@ -5,7 +5,8 @@ const prisma = new PrismaClient()
 
 export async function GET(req, { params }) {
   try {
-    const showtimeId = params.id;
+    const request = await params;
+    const showtimeId = request.id
 
     if (!showtimeId || isNaN(parseInt(showtimeId))) {
       return NextResponse.json(

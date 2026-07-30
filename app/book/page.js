@@ -57,6 +57,7 @@ export default function BookingPage() {
         .then(res => res.json())
         .then(data => {
           if (data.takenSeats) setTakenSeats(data.takenSeats)
+          console.log('taken seats:' + data.takenSeats)
           setLoadingSeats(false)
         })
         .catch(err => {
