@@ -338,7 +338,7 @@ return (
                 if (!movie) return null
                 return(
                 <div key={booking.id} style={{display:'flex', margin:'0.5rem', gap:'0.5rem', width:'80%', border:'1px solid #2036ff', backgroundColor:'#696969'}}>
-                  <p>Price: ${booking.totalprice}</p>
+                  <p>Price: ${parseFloat(booking.totalprice).toFixed(2)}</p>
                   <p>Movie: {movie.title}</p>
                   <p>Ticket count: {booking.ticketCount ?? 1}</p>
                   <p>Showtime: {date} {time} at Showroom {booking.hallId}</p>
